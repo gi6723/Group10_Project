@@ -1,0 +1,42 @@
+﻿@model Group10_Project.Models.RESite
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>RESite</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.siteAddress)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.siteAddress)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.siteContactPerson)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.siteContactPerson)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.RE.contactPersonName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.RE.contactPersonName)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.ID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

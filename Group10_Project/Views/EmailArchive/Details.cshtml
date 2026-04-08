@@ -1,0 +1,42 @@
+﻿@model Group10_Project.Models.EmailArchive
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>EmailArchive</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.emailDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.emailDate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.reason)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.reason)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.RE.contactPersonName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.RE.contactPersonName)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.emailID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

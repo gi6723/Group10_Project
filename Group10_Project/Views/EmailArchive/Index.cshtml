@@ -1,0 +1,45 @@
+﻿@model IEnumerable<Group10_Project.Models.EmailArchive>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.emailDate)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.reason)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.RE.contactPersonName)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.emailDate)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.reason)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.RE.contactPersonName)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.emailID }) |
+            @Html.ActionLink("Details", "Details", new { id=item.emailID }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.emailID })
+        </td>
+    </tr>
+}
+
+</table>
