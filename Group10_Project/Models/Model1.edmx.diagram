@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="ada0c538539f4e2b9284e89ddb2af0e9" Name="Diagram1">
+        <EntityTypeShape EntityType="Group10_DBModel.Decision" Width="1.5" PointX="8.25" PointY="7.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Group10_DBModel.EmailArchive" Width="1.5" PointX="3" PointY="6.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Group10_DBModel.EnvironmentalPermit" Width="1.5" PointX="3.75" PointY="2.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="Group10_DBModel.EO" Width="1.5" PointX="6" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Group10_DBModel.OPS_CPP" Width="1.5" PointX="1.5" PointY="3.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="Group10_DBModel.Payment" Width="1.5" PointX="3.75" PointY="13" IsExpanded="true" />
+        <EntityTypeShape EntityType="Group10_DBModel.Permit" Width="1.5" PointX="3" PointY="9.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="Group10_DBModel.PermitRequest" Width="1.5" PointX="6" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Group10_DBModel.RE" Width="1.5" PointX="0.75" PointY="7.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="Group10_DBModel.RequestStatu" Width="1.5" PointX="8.25" PointY="11" IsExpanded="true" />
+        <EntityTypeShape EntityType="Group10_DBModel.RESite" Width="1.5" PointX="3" PointY="17.5" IsExpanded="true" />
+        <AssociationConnector Association="Group10_DBModel.fk_EO" ManuallyRouted="false" />
+        <AssociationConnector Association="Group10_DBModel.fk_PR" ManuallyRouted="false" />
+        <AssociationConnector Association="Group10_DBModel.fk_emailRE" ManuallyRouted="false" />
+        <AssociationConnector Association="Group10_DBModel.C_payment_fk_" ManuallyRouted="false" />
+        <AssociationConnector Association="Group10_DBModel.fk_permit_type" ManuallyRouted="false" />
+        <AssociationConnector Association="Group10_DBModel.issued_by" ManuallyRouted="false" />
+        <AssociationConnector Association="Group10_DBModel.fk_payment" ManuallyRouted="false" />
+        <AssociationConnector Association="Group10_DBModel.issued_to" ManuallyRouted="false" />
+        <AssociationConnector Association="Group10_DBModel.related_to" ManuallyRouted="false" />
+        <AssociationConnector Association="Group10_DBModel.fk_REID" ManuallyRouted="false" />
+        <AssociationConnector Association="Group10_DBModel.req_fk" ManuallyRouted="false" />
+        <AssociationConnector Association="Group10_DBModel.fk_RE" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
