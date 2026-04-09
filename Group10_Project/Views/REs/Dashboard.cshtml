@@ -1,7 +1,85 @@
-﻿
+﻿@model Group10_Project.Models.REDashboardViewModel
+
 @{
-    ViewBag.Title = "Dashboard";
+    ViewBag.Title = "RE Dashboard";
 }
 
-<h2>RE_Dashboard</h2>
+<h2>RE Dashboard</h2>
 
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong>Account Summary</strong>
+    </div>
+    <div class="panel-body">
+        <p><strong>RE ID:</strong> @Model.REID</p>
+        <p><strong>Contact Person:</strong> @Model.ContactPersonName</p>
+        <p><strong>Email:</strong> @Model.Email</p>
+        <p><strong>Organization:</strong> @Model.OrganizationName</p>
+        <p><strong>Organization Address:</strong> @Model.OrganizationAddress</p>
+    </div>
+</div>
+
+<p>
+    @Html.ActionLink("Create New Permit Request", "Create", "PermitRequests", null, new { @class = "btn btn-primary" })
+    @Html.ActionLink("Manage My Account", "Edit", "REs", new { id = Model.REID }, new { @class = "btn btn-default" })
+</p>
+
+<h3>My Permit Requests</h3>
+
+@if (Model.Requests == null || !Model.Requests.Any())
+{
+    <div class="alert alert-info">
+        No permit requests found for this account.
+    </div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Request No</th>
+                <th>Permit</th>
+                <th>Date Requested</th>
+                <th>Activity Description</th>
+                <th>Permit Fee</th>
+                <th>Current Status</th>
+                <th>Status Notes</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var req in Model.Requests)
+            {
+                <tr>
+                    <td>@req.RequestNo</td>
+                    <td>@req.PermitName</td>
+                    <td>@(req.DateOfRequest?.ToShortDateString() ?? "")</td>
+                    <td>@req.ActivityDescription</td>
+                    <td>@(req.PermitFee.HasValue ? req.PermitFee.Value.ToString("C") : "")</td>
+                    <td>@req.CurrentStatus</td>
+                    <td>@req.StatusDescription</td>
+                    <td>
+                        @Html.ActionLink("Details", "Details", "PermitRequests", new { id = req.RequestNo }, new { @class = "btn btn-xs btn-info" })
+
+                        @if (req.CanPay)
+                        {
+                            @Html.Raw(" ")
+                            @Html.ActionLink("Pay Fee", "Create", "Payments", new { requestId = req.RequestNo }, new { @class = "btn btn-xs btn-warning" })}
+
+                        @if (req.CanViewDecision)
+                        {
+                            @Html.Raw(" ")
+                            @Html.ActionLink("View Status", "Index", "RequestStatus", null, new { @class = "btn btn-xs btn-default" })
+                        }
+
+                        @if (req.CanViewPermit)
+                        {
+                            @Html.Raw(" ")
+                            @Html.ActionLink("View Permit", "Index", "Permit", null, new { @class = "btn btn-xs btn-success" })
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

@@ -186,6 +186,7 @@
     <Compile Include="Models\RE.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\REDashboardViewModel.cs" />
     <Compile Include="Models\RequestStatu.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>

@@ -39,29 +39,64 @@ namespace Group10_Project.Controllers
         // GET: PermitRequests/Create
         public ActionResult Create()
         {
+            if (Session["UserID"] == null)
+            {
+                return RedirectToAction("Login", "REs");
+            }
+
             ViewBag.permitTypeID = new SelectList(db.EnvironmentalPermits, "permitID", "permitName");
-            ViewBag.permitPayment = new SelectList(db.Payments, "paymentID", "paymentMethod");
-            ViewBag.permitREID = new SelectList(db.REs, "ID", "contactPersonName");
             return View();
         }
 
         // POST: PermitRequests/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "requestNo,dateOfRequest,activityDescription,activityStartDate,activityDuration,permitFee,permitTypeID,permitREID,permitPayment")] PermitRequest permitRequest)
+        public ActionResult Create([Bind(Include = "requestNo,activityDescription,activityStartDate,activityDuration,permitTypeID")] PermitRequest permitRequest)
         {
+            if (Session["UserID"] == null)
+            {
+                return RedirectToAction("Login", "REs");
+            }
+
+            string currentUserId = Session["UserID"].ToString();
+
             if (ModelState.IsValid)
             {
+                // Set the logged-in RE automatically
+                permitRequest.permitREID = currentUserId;
+
+                // Set request date automatically
+                permitRequest.dateOfRequest = DateTime.Now;
+
+                // No payment yet on initial creation
+                permitRequest.permitPayment = null;
+
+                // Pull permit fee from selected permit type
+                var selectedPermit = db.EnvironmentalPermits.FirstOrDefault(p => p.permitID == permitRequest.permitTypeID);
+                if (selectedPermit != null)
+                {
+                    permitRequest.permitFee = selectedPermit.permitFee;
+                }
+
                 db.PermitRequests.Add(permitRequest);
                 db.SaveChanges();
-                return RedirectToAction("Index");
+
+                // Create initial status row
+                var initialStatus = new RequestStatu
+                {
+                    permitRequestStatus = "Pending Payment",
+                    date = DateTime.Now,
+                    description = "Application submitted and awaiting payment.",
+                    requestID = permitRequest.requestNo
+                };
+
+                db.RequestStatus.Add(initialStatus);
+                db.SaveChanges();
+
+                return RedirectToAction("Dashboard", "REs");
             }
 
             ViewBag.permitTypeID = new SelectList(db.EnvironmentalPermits, "permitID", "permitName", permitRequest.permitTypeID);
-            ViewBag.permitPayment = new SelectList(db.Payments, "paymentID", "paymentMethod", permitRequest.permitPayment);
-            ViewBag.permitREID = new SelectList(db.REs, "ID", "contactPersonName", permitRequest.permitREID);
             return View(permitRequest);
         }
 

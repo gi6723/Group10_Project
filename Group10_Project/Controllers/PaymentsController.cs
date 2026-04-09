@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
 using Group10_Project.Models;
 
@@ -27,33 +24,130 @@ namespace Group10_Project.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
             Payment payment = db.Payments.Find(id);
             if (payment == null)
             {
                 return HttpNotFound();
             }
+
             return View(payment);
         }
 
-        // GET: Payments/Create
-        public ActionResult Create()
+        // GET: Payments/Create?requestId=001
+        public ActionResult Create(string requestId)
         {
+            if (Session["UserID"] == null)
+            {
+                return RedirectToAction("Login", "REs");
+            }
+
+            if (string.IsNullOrEmpty(requestId))
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Request ID is required.");
+            }
+
+            var permitRequest = db.PermitRequests
+                .Include(p => p.EnvironmentalPermit)
+                .FirstOrDefault(p => p.requestNo == requestId);
+
+            if (permitRequest == null)
+            {
+                return HttpNotFound();
+            }
+
+            // Optional security check: ensure logged-in RE owns this request
+            string currentUserId = Session["UserID"].ToString();
+            if (permitRequest.permitREID != currentUserId)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.Forbidden);
+            }
+
+            ViewBag.RequestId = permitRequest.requestNo;
+            ViewBag.PermitName = permitRequest.EnvironmentalPermit != null
+                ? permitRequest.EnvironmentalPermit.permitName
+                : permitRequest.permitTypeID;
+            ViewBag.PermitFee = permitRequest.permitFee;
+
             return View();
         }
 
         // POST: Payments/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "paymentID,paymentDate,paymentMethod,last4CardDigit,cardHolderName,paymentApproved")] Payment payment)
+        public ActionResult Create(string requestId, [Bind(Include = "paymentMethod,last4CardDigit,cardHolderName")] Payment payment)
         {
+            if (Session["UserID"] == null)
+            {
+                return RedirectToAction("Login", "REs");
+            }
+
+            if (string.IsNullOrEmpty(requestId))
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Request ID is required.");
+            }
+
+            var permitRequest = db.PermitRequests
+                .Include(p => p.EnvironmentalPermit)
+                .FirstOrDefault(p => p.requestNo == requestId);
+
+            if (permitRequest == null)
+            {
+                return HttpNotFound();
+            }
+
+            string currentUserId = Session["UserID"].ToString();
+            if (permitRequest.permitREID != currentUserId)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.Forbidden);
+            }
+
             if (ModelState.IsValid)
             {
+                // Auto-generate payment system fields
+                payment.paymentID = "PAY_" + Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
+                payment.paymentDate = DateTime.Now;
+                payment.paymentApproved = true;
+
                 db.Payments.Add(payment);
                 db.SaveChanges();
-                return RedirectToAction("Index");
+
+                // Link payment to permit request
+                permitRequest.permitPayment = payment.paymentID;
+                db.Entry(permitRequest).State = EntityState.Modified;
+
+                // Add new status after successful payment
+                var paymentStatus = new RequestStatu
+                {
+                    permitRequestStatus = "Submitted",
+                    date = DateTime.Now,
+                    description = "Payment received and application submitted for review.",
+                    requestID = permitRequest.requestNo
+                };
+
+                db.RequestStatus.Add(paymentStatus);
+
+                // Optional acknowledgement/email archive entry
+                var emailArchive = new EmailArchive
+                {
+                    emailID = "EMAIL_" + Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper(),
+                    emailDate = DateTime.Now,
+                    reason = "Payment received and application submitted.",
+                    REID = currentUserId
+                };
+
+                db.EmailArchives.Add(emailArchive);
+
+                db.SaveChanges();
+
+                return RedirectToAction("Dashboard", "REs");
             }
+
+            ViewBag.RequestId = permitRequest.requestNo;
+            ViewBag.PermitName = permitRequest.EnvironmentalPermit != null
+                ? permitRequest.EnvironmentalPermit.permitName
+                : permitRequest.permitTypeID;
+            ViewBag.PermitFee = permitRequest.permitFee;
 
             return View(payment);
         }
@@ -65,17 +159,17 @@ namespace Group10_Project.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
             Payment payment = db.Payments.Find(id);
             if (payment == null)
             {
                 return HttpNotFound();
             }
+
             return View(payment);
         }
 
         // POST: Payments/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "paymentID,paymentDate,paymentMethod,last4CardDigit,cardHolderName,paymentApproved")] Payment payment)
@@ -86,6 +180,7 @@ namespace Group10_Project.Controllers
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
+
             return View(payment);
         }
 
@@ -96,11 +191,13 @@ namespace Group10_Project.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
             Payment payment = db.Payments.Find(id);
             if (payment == null)
             {
                 return HttpNotFound();
             }
+
             return View(payment);
         }
 

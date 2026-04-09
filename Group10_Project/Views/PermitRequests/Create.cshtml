@@ -1,33 +1,25 @@
 ﻿@model Group10_Project.Models.PermitRequest
 
 @{
-    ViewBag.Title = "Create";
+    ViewBag.Title = "Create Permit Request";
 }
 
-<h2>Create</h2>
+<h2>Create Permit Request</h2>
 
-
-@using (Html.BeginForm()) 
+@using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
-    
+
     <div class="form-horizontal">
-        <h4>PermitRequest</h4>
+        <h4>Permit Request</h4>
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
         <div class="form-group">
             @Html.LabelFor(model => model.requestNo, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.EditorFor(model => model.requestNo, new { htmlAttributes = new { @class = "form-control" } })
                 @Html.ValidationMessageFor(model => model.requestNo, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.dateOfRequest, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.dateOfRequest, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.dateOfRequest, "", new { @class = "text-danger" })
             </div>
         </div>
 
@@ -42,7 +34,7 @@
         <div class="form-group">
             @Html.LabelFor(model => model.activityStartDate, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.activityStartDate, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.EditorFor(model => model.activityStartDate, new { htmlAttributes = new { @class = "form-control", type = "date" } })
                 @Html.ValidationMessageFor(model => model.activityStartDate, "", new { @class = "text-danger" })
             </div>
         </div>
@@ -50,53 +42,29 @@
         <div class="form-group">
             @Html.LabelFor(model => model.activityDuration, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.activityDuration, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.EditorFor(model => model.activityDuration, new { htmlAttributes = new { @class = "form-control", type = "date" } })
                 @Html.ValidationMessageFor(model => model.activityDuration, "", new { @class = "text-danger" })
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.permitFee, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.permitTypeID, "Permit Type", htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.permitFee, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.permitFee, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.permitTypeID, "permitTypeID", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownList("permitTypeID", null, htmlAttributes: new { @class = "form-control" })
+                @Html.DropDownList("permitTypeID", null, "-- Select Permit Type --", new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.permitTypeID, "", new { @class = "text-danger" })
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.permitREID, "permitREID", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownList("permitREID", null, htmlAttributes: new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.permitREID, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.permitPayment, "permitPayment", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownList("permitPayment", null, htmlAttributes: new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.permitPayment, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
+                <input type="submit" value="Submit Permit Request" class="btn btn-primary" />
             </div>
         </div>
     </div>
 }
 
 <div>
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink("Back to Dashboard", "Dashboard", "REs")
 </div>
 
 @section Scripts {

@@ -144,7 +144,77 @@ namespace Group10_Project.Controllers
             db.SaveChanges();
             return RedirectToAction("Index");
         }
+        public ActionResult Dashboard()
+        {
+            if (Session["UserID"] == null)
+            {
+                return RedirectToAction("Login");
+            }
 
+            string id = Session["UserID"].ToString();
+
+            var re = db.REs.Find(id);
+            if (re == null)
+            {
+                return HttpNotFound();
+            }
+
+            var permitRequests = db.PermitRequests
+                .Include(p => p.EnvironmentalPermit)
+                .Where(p => p.permitREID == id)
+                .ToList();
+
+            var model = new REDashboardViewModel
+            {
+                REID = re.ID,
+                ContactPersonName = re.contactPersonName,
+                Email = re.email,
+                OrganizationName = re.organizationName,
+                OrganizationAddress = re.organizationAddress
+            };
+
+            foreach (var req in permitRequests)
+            {
+                var latestStatus = db.RequestStatus
+                    .Where(rs => rs.requestID == req.requestNo)
+                    .ToList()
+                    .OrderByDescending(rs =>
+                        rs.permitRequestStatus == "Issued" ? 6 :
+                        rs.permitRequestStatus == "Approved" ? 5 :
+                        rs.permitRequestStatus == "Rejected" ? 4 :
+                        rs.permitRequestStatus == "Being Reviewed" ? 3 :
+                        rs.permitRequestStatus == "Submitted" ? 2 :
+                        rs.permitRequestStatus == "Pending Payment" ? 1 : 0)
+                    .ThenByDescending(rs => rs.date)
+                    .FirstOrDefault();
+
+
+                var item = new REPermitRequestItemViewModel
+                {
+                    RequestNo = req.requestNo,
+                    PermitName = req.EnvironmentalPermit != null ? req.EnvironmentalPermit.permitName : req.permitTypeID,
+                    DateOfRequest = req.dateOfRequest,
+                    ActivityDescription = req.activityDescription,
+                    ActivityStartDate = req.activityStartDate,
+                    ActivityDuration = req.activityDuration,
+                    PermitFee = req.permitFee,
+
+                    CurrentStatus = latestStatus != null ? latestStatus.permitRequestStatus : "Pending Payment",
+                    StatusDate = latestStatus != null ? (DateTime?)latestStatus.date : null,
+                    StatusDescription = latestStatus != null ? latestStatus.description : "No status recorded yet.",
+
+                    CanPay = latestStatus == null || latestStatus.permitRequestStatus == "Pending Payment",
+                    CanViewPermit = latestStatus != null && latestStatus.permitRequestStatus == "Issued",
+                    CanViewDecision = latestStatus != null &&
+                                      (latestStatus.permitRequestStatus == "Approved" ||
+                                       latestStatus.permitRequestStatus == "Rejected")
+                };
+
+                model.Requests.Add(item);
+            }
+
+            return View(model);
+        }
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -162,40 +232,20 @@ namespace Group10_Project.Controllers
         [HttpPost]
         public ActionResult Login(string id, string password)
         {
-            // Find a user where both email and password match
             var user = db.REs.FirstOrDefault(u => u.ID == id && u.password == password);
 
             if (user != null)
             {
-                // 2. SUCCESS: Create the Session
-                // This "sticks" as the user moves between pages
                 Session["UserID"] = user.ID;
                 Session["UserName"] = user.organizationName;
 
-                // 3. Redirect to the Dashboard
-                return RedirectToAction("Dashboard");
+                return RedirectToAction("Dashboard", "REs");
             }
             else
             {
-                // FAILURE: Show error
                 ViewBag.Error = "Invalid email or password.";
                 return View();
             }
-        }
-
-        public ActionResult Dashboard()
-        {
-            if (Session["UserID"] == null)
-            {
-                return RedirectToAction("Login");
-            }
-
-            string currentUserId = Session["UserID"].ToString();
-
-            // Get only the sites belonging to THIS Regulated Entity
-            var mySites = db.RESites.Where(s => s.ID == currentUserId).ToList();
-
-            return View(mySites);
         }
     }
 }
