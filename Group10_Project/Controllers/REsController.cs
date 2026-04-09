@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Group10_Project.Models;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
+using System.Security.Principal;
 using System.Web;
 using System.Web.Mvc;
-using Group10_Project.Models;
 
 namespace Group10_Project.Controllers
 {
@@ -52,8 +53,17 @@ namespace Group10_Project.Controllers
         {
             if (ModelState.IsValid)
             {
+                // check if user already exists
+                var existingRE = db.REs.FirstOrDefault(u => u.ID == re.ID);
+
+                if (existingRE != null)
+                {
+                    // If we found someone, add an error message and send them back to the form
+                    ModelState.AddModelError("ID", "This email is already registered. Please login or use a different ID.");
+                    return View(re);
+                }
+
                 re.createdDate = DateTime.Now;
-                db.REs.Add(re);
                 // 1. Save the RE (The User Account) first
                 db.REs.Add(re);
                 db.SaveChanges(); // This pushes the RE to the DB and generates the ID
@@ -64,8 +74,7 @@ namespace Group10_Project.Controllers
                 newSite.siteAddress = siteAddress;
                 newSite.siteContactPerson = siteContactPerson;
 
-                // This is the "Bridge" - link the Site to the RE's ID
-                // Check your RESite.cs file to see if this is named RE_ID or ID
+                // Foreign key to RE
                 newSite.ID = re.ID;
 
                 db.RESites.Add(newSite);
@@ -148,6 +157,45 @@ namespace Group10_Project.Controllers
         public ActionResult Login()
         {
             return View();
+        }
+
+        [HttpPost]
+        public ActionResult Login(string id, string password)
+        {
+            // Find a user where both email and password match
+            var user = db.REs.FirstOrDefault(u => u.ID == id && u.password == password);
+
+            if (user != null)
+            {
+                // 2. SUCCESS: Create the Session
+                // This "sticks" as the user moves between pages
+                Session["UserID"] = user.ID;
+                Session["UserName"] = user.organizationName;
+
+                // 3. Redirect to the Dashboard
+                return RedirectToAction("Dashboard");
+            }
+            else
+            {
+                // FAILURE: Show error
+                ViewBag.Error = "Invalid email or password.";
+                return View();
+            }
+        }
+
+        public ActionResult Dashboard()
+        {
+            if (Session["UserID"] == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            string currentUserId = Session["UserID"].ToString();
+
+            // Get only the sites belonging to THIS Regulated Entity
+            var mySites = db.RESites.Where(s => s.ID == currentUserId).ToList();
+
+            return View(mySites);
         }
     }
 }

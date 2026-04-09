@@ -322,6 +322,7 @@
     <Content Include="Views\EnvironmentalPermit\Edit.cshtml" />
     <Content Include="Views\EnvironmentalPermit\Index.cshtml" />
     <Content Include="Views\REs\Login.cshtml" />
+    <Content Include="Views\REs\Dashboard.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
