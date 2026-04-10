@@ -5,7 +5,6 @@ using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Security.Principal;
 using System.Web;
 using System.Web.Mvc;
 
@@ -29,11 +28,13 @@ namespace Group10_Project.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
             RE rE = db.REs.Find(id);
             if (rE == null)
             {
                 return HttpNotFound();
             }
+
             return View(rE);
         }
 
@@ -45,37 +46,30 @@ namespace Group10_Project.Controllers
         }
 
         // POST: REs/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(RE re, string siteAddress, string siteContactPerson)
         {
             if (ModelState.IsValid)
             {
-                // check if user already exists
                 var existingRE = db.REs.FirstOrDefault(u => u.ID == re.ID);
 
                 if (existingRE != null)
                 {
-                    // If we found someone, add an error message and send them back to the form
                     ModelState.AddModelError("ID", "This email is already registered. Please login or use a different ID.");
                     return View(re);
                 }
 
                 re.createdDate = DateTime.Now;
-                // 1. Save the RE (The User Account) first
                 db.REs.Add(re);
-                db.SaveChanges(); // This pushes the RE to the DB and generates the ID
+                db.SaveChanges();
 
-                // 2. Now create the Site and link it to the RE we just saved
-                var newSite = new RESite();
-
-                newSite.siteAddress = siteAddress;
-                newSite.siteContactPerson = siteContactPerson;
-
-                // Foreign key to RE
-                newSite.ID = re.ID;
+                var newSite = new RESite
+                {
+                    siteAddress = siteAddress,
+                    siteContactPerson = siteContactPerson,
+                    ID = re.ID
+                };
 
                 db.RESites.Add(newSite);
                 db.SaveChanges();
@@ -93,18 +87,18 @@ namespace Group10_Project.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
             RE rE = db.REs.Find(id);
             if (rE == null)
             {
                 return HttpNotFound();
             }
+
             ViewBag.ID = new SelectList(db.RESites, "ID", "siteAddress", rE.ID);
             return View(rE);
         }
 
         // POST: REs/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "ID,contactPersonName,password,createdDate,email,organizationName,organizationAddress")] RE rE)
@@ -115,6 +109,7 @@ namespace Group10_Project.Controllers
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
+
             ViewBag.ID = new SelectList(db.RESites, "ID", "siteAddress", rE.ID);
             return View(rE);
         }
@@ -126,11 +121,13 @@ namespace Group10_Project.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
             RE rE = db.REs.Find(id);
             if (rE == null)
             {
                 return HttpNotFound();
             }
+
             return View(rE);
         }
 
@@ -144,6 +141,7 @@ namespace Group10_Project.Controllers
             db.SaveChanges();
             return RedirectToAction("Index");
         }
+
         public ActionResult Dashboard()
         {
             if (Session["UserID"] == null)
@@ -180,14 +178,39 @@ namespace Group10_Project.Controllers
                     .ToList()
                     .OrderByDescending(rs =>
                         rs.permitRequestStatus == "Issued" ? 6 :
-                        rs.permitRequestStatus == "Approved" ? 5 :
-                        rs.permitRequestStatus == "Rejected" ? 4 :
-                        rs.permitRequestStatus == "Being Reviewed" ? 3 :
+                        rs.permitRequestStatus.StartsWith("Approved") ? 5 :
+                        rs.permitRequestStatus.StartsWith("Rejected") ? 4 :
+                        rs.permitRequestStatus.StartsWith("Being Reviewed") ? 3 :
                         rs.permitRequestStatus == "Submitted" ? 2 :
-                        rs.permitRequestStatus == "Pending Payment" ? 1 : 0)
+                        rs.permitRequestStatus.StartsWith("Pending Payment") ? 1 : 0)
                     .ThenByDescending(rs => rs.date)
                     .FirstOrDefault();
 
+                string displayStatus = "Pending Payment";
+
+                if (latestStatus != null)
+                {
+                    if (latestStatus.permitRequestStatus.StartsWith("Pending Payment"))
+                    {
+                        displayStatus = "Pending Payment";
+                    }
+                    else if (latestStatus.permitRequestStatus.StartsWith("Being Reviewed"))
+                    {
+                        displayStatus = "Being Reviewed";
+                    }
+                    else if (latestStatus.permitRequestStatus.StartsWith("Approved"))
+                    {
+                        displayStatus = "Approved";
+                    }
+                    else if (latestStatus.permitRequestStatus.StartsWith("Rejected"))
+                    {
+                        displayStatus = "Rejected";
+                    }
+                    else
+                    {
+                        displayStatus = latestStatus.permitRequestStatus;
+                    }
+                }
 
                 var item = new REPermitRequestItemViewModel
                 {
@@ -199,29 +222,21 @@ namespace Group10_Project.Controllers
                     ActivityDuration = req.activityDuration,
                     PermitFee = req.permitFee,
 
-                    CurrentStatus = latestStatus != null ? latestStatus.permitRequestStatus : "Pending Payment",
+                    CurrentStatus = displayStatus,
                     StatusDate = latestStatus != null ? (DateTime?)latestStatus.date : null,
                     StatusDescription = latestStatus != null ? latestStatus.description : "No status recorded yet.",
 
-                    CanPay = latestStatus == null || latestStatus.permitRequestStatus == "Pending Payment",
+                    CanPay = latestStatus == null || latestStatus.permitRequestStatus.StartsWith("Pending Payment"),
                     CanViewPermit = latestStatus != null && latestStatus.permitRequestStatus == "Issued",
                     CanViewDecision = latestStatus != null &&
-                                      (latestStatus.permitRequestStatus == "Approved" ||
-                                       latestStatus.permitRequestStatus == "Rejected")
+                                      (latestStatus.permitRequestStatus.StartsWith("Approved") ||
+                                       latestStatus.permitRequestStatus.StartsWith("Rejected"))
                 };
 
                 model.Requests.Add(item);
             }
 
             return View(model);
-        }
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
         }
 
         public ActionResult Login()
@@ -246,6 +261,22 @@ namespace Group10_Project.Controllers
                 ViewBag.Error = "Invalid email or password.";
                 return View();
             }
+        }
+
+        public ActionResult Logout()
+        {
+            Session["UserID"] = null;
+            Session["UserName"] = null;
+            return RedirectToAction("Login");
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

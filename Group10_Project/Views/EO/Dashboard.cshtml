@@ -1,0 +1,60 @@
+﻿@model IEnumerable<Group10_Project.Models.PermitRequest>
+
+@{
+    ViewBag.Title = "EO Dashboard";
+}
+
+<h2>EO Dashboard</h2>
+
+<p>
+    <strong>Logged in as:</strong> @Session["EOUserName"]
+</p>
+
+<p>
+    @Html.ActionLink("View All Decisions", "Index", "Decisions", null, new { @class = "btn btn-default" })
+    @Html.ActionLink("View All Permits", "Index", "Permit", null, new { @class = "btn btn-default" })
+    @Html.ActionLink("Logout", "Logout", "EO", null, new { @class = "btn btn-danger" })
+</p>
+
+<h3>Permit Requests</h3>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No permit requests are currently awaiting EO review.
+    </div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Request No</th>
+                <th>Permit</th>
+                <th>RE</th>
+                <th>Date Requested</th>
+                <th>Activity Description</th>
+                <th>Permit Fee</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var req in Model)
+            {
+                <tr>
+                    <td>@req.requestNo</td>
+                    <td>@(req.EnvironmentalPermit != null ? req.EnvironmentalPermit.permitName : req.permitTypeID)</td>
+                    <td>@(req.RE != null ? req.RE.contactPersonName : req.permitREID)</td>
+                    <td>@(req.dateOfRequest?.ToShortDateString() ?? "")</td>
+                    <td>@req.activityDescription</td>
+                    <td>@(req.permitFee.HasValue ? req.permitFee.Value.ToString("C") : "")</td>
+                    <td>
+                        @Html.ActionLink("Details", "Details", "PermitRequests", new { id = req.requestNo }, new { @class = "btn btn-info btn-xs" })
+                        @Html.Raw(" ")
+                        @Html.ActionLink("Review / Decide", "Create", "Decisions", new { requestId = req.requestNo }, new { @class = "btn btn-warning btn-xs" })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

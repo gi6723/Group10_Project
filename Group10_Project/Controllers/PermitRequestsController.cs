@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
 using Group10_Project.Models;
 
@@ -17,7 +15,11 @@ namespace Group10_Project.Controllers
         // GET: PermitRequests
         public ActionResult Index()
         {
-            var permitRequests = db.PermitRequests.Include(p => p.EnvironmentalPermit).Include(p => p.Payment).Include(p => p.RE);
+            var permitRequests = db.PermitRequests
+                .Include(p => p.EnvironmentalPermit)
+                .Include(p => p.Payment)
+                .Include(p => p.RE);
+
             return View(permitRequests.ToList());
         }
 
@@ -28,11 +30,13 @@ namespace Group10_Project.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
             PermitRequest permitRequest = db.PermitRequests.Find(id);
             if (permitRequest == null)
             {
                 return HttpNotFound();
             }
+
             return View(permitRequest);
         }
 
@@ -51,7 +55,7 @@ namespace Group10_Project.Controllers
         // POST: PermitRequests/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "requestNo,activityDescription,activityStartDate,activityDuration,permitTypeID")] PermitRequest permitRequest)
+        public ActionResult Create([Bind(Include = "activityDescription,activityStartDate,activityDuration,permitTypeID")] PermitRequest permitRequest)
         {
             if (Session["UserID"] == null)
             {
@@ -62,6 +66,16 @@ namespace Group10_Project.Controllers
 
             if (ModelState.IsValid)
             {
+                // Auto-generate request number
+                string newRequestNo;
+                do
+                {
+                    newRequestNo = "REQ_" + Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper();
+                }
+                while (db.PermitRequests.Any(p => p.requestNo == newRequestNo));
+
+                permitRequest.requestNo = newRequestNo;
+
                 // Set the logged-in RE automatically
                 permitRequest.permitREID = currentUserId;
 
@@ -81,11 +95,15 @@ namespace Group10_Project.Controllers
                 db.PermitRequests.Add(permitRequest);
                 db.SaveChanges();
 
-                // Create initial status row
+                // Because RequestStatus has a flawed composite PK (permitRequestStatus + date),
+                // make the initial status unique per request.
+                DateTime today = DateTime.Today;
+                var uniquePendingStatus = "Pending Payment - " + permitRequest.requestNo;
+
                 var initialStatus = new RequestStatu
                 {
-                    permitRequestStatus = "Pending Payment",
-                    date = DateTime.Now,
+                    permitRequestStatus = uniquePendingStatus,
+                    date = today,
                     description = "Application submitted and awaiting payment.",
                     requestID = permitRequest.requestNo
                 };
@@ -107,11 +125,13 @@ namespace Group10_Project.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
             PermitRequest permitRequest = db.PermitRequests.Find(id);
             if (permitRequest == null)
             {
                 return HttpNotFound();
             }
+
             ViewBag.permitTypeID = new SelectList(db.EnvironmentalPermits, "permitID", "permitName", permitRequest.permitTypeID);
             ViewBag.permitPayment = new SelectList(db.Payments, "paymentID", "paymentMethod", permitRequest.permitPayment);
             ViewBag.permitREID = new SelectList(db.REs, "ID", "contactPersonName", permitRequest.permitREID);
@@ -119,8 +139,6 @@ namespace Group10_Project.Controllers
         }
 
         // POST: PermitRequests/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "requestNo,dateOfRequest,activityDescription,activityStartDate,activityDuration,permitFee,permitTypeID,permitREID,permitPayment")] PermitRequest permitRequest)
@@ -131,6 +149,7 @@ namespace Group10_Project.Controllers
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
+
             ViewBag.permitTypeID = new SelectList(db.EnvironmentalPermits, "permitID", "permitName", permitRequest.permitTypeID);
             ViewBag.permitPayment = new SelectList(db.Payments, "paymentID", "paymentMethod", permitRequest.permitPayment);
             ViewBag.permitREID = new SelectList(db.REs, "ID", "contactPersonName", permitRequest.permitREID);
@@ -144,11 +163,13 @@ namespace Group10_Project.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
             PermitRequest permitRequest = db.PermitRequests.Find(id);
             if (permitRequest == null)
             {
                 return HttpNotFound();
             }
+
             return View(permitRequest);
         }
 

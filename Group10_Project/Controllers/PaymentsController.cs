@@ -116,11 +116,12 @@ namespace Group10_Project.Controllers
                 permitRequest.permitPayment = payment.paymentID;
                 db.Entry(permitRequest).State = EntityState.Modified;
 
-                // Add new status after successful payment
+                DateTime today = DateTime.Today;
+
                 var paymentStatus = new RequestStatu
                 {
-                    permitRequestStatus = "Submitted",
-                    date = DateTime.Now,
+                    permitRequestStatus = "Being Reviewed - " + permitRequest.requestNo,
+                    date = today,
                     description = "Payment received and application submitted for review.",
                     requestID = permitRequest.requestNo
                 };

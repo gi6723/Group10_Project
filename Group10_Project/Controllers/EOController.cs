@@ -27,11 +27,13 @@ namespace Group10_Project.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
             EO eO = db.EOs.Find(id);
             if (eO == null)
             {
                 return HttpNotFound();
             }
+
             return View(eO);
         }
 
@@ -42,8 +44,6 @@ namespace Group10_Project.Controllers
         }
 
         // POST: EO/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "ID,Name")] EO eO)
@@ -65,17 +65,17 @@ namespace Group10_Project.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
             EO eO = db.EOs.Find(id);
             if (eO == null)
             {
                 return HttpNotFound();
             }
+
             return View(eO);
         }
 
         // POST: EO/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "ID,Name")] EO eO)
@@ -86,6 +86,7 @@ namespace Group10_Project.Controllers
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
+
             return View(eO);
         }
 
@@ -96,11 +97,13 @@ namespace Group10_Project.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
             EO eO = db.EOs.Find(id);
             if (eO == null)
             {
                 return HttpNotFound();
             }
+
             return View(eO);
         }
 
@@ -113,6 +116,76 @@ namespace Group10_Project.Controllers
             db.EOs.Remove(eO);
             db.SaveChanges();
             return RedirectToAction("Index");
+        }
+
+        public ActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Login(string id, string password)
+        {
+            var eoUser = db.EOs.FirstOrDefault(e => e.ID == id);
+
+            if (eoUser != null && password == "password")
+            {
+                Session["EOUserID"] = eoUser.ID;
+                Session["EOUserName"] = eoUser.Name;
+
+                return RedirectToAction("Dashboard");
+            }
+
+            ViewBag.Error = "Invalid EO ID or password.";
+            return View();
+        }
+
+        public ActionResult Dashboard()
+        {
+            if (Session["EOUserID"] == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            var allRequests = db.PermitRequests
+                .Include(p => p.EnvironmentalPermit)
+                .Include(p => p.RE)
+                .ToList();
+
+            var reviewQueue = new List<PermitRequest>();
+
+            foreach (var req in allRequests)
+            {
+                var latestStatus = db.RequestStatus
+                    .Where(rs => rs.requestID == req.requestNo)
+                    .ToList()
+                    .OrderByDescending(rs =>
+                        rs.permitRequestStatus == "Issued" ? 6 :
+                        rs.permitRequestStatus == "Approved" ? 5 :
+                        rs.permitRequestStatus == "Rejected" ? 4 :
+                        rs.permitRequestStatus.StartsWith("Being Reviewed") ? 3 :
+                        rs.permitRequestStatus == "Submitted" ? 2 :
+                        rs.permitRequestStatus.StartsWith("Pending Payment") ? 1 : 0)
+                    .ThenByDescending(rs => rs.date)
+                    .FirstOrDefault();
+
+                if (latestStatus != null &&
+                    (latestStatus.permitRequestStatus == "Submitted" ||
+                     latestStatus.permitRequestStatus.StartsWith("Being Reviewed")))
+                {
+                    reviewQueue.Add(req);
+                }
+            }
+
+            return View(reviewQueue);
+        }
+
+        public ActionResult Logout()
+        {
+            Session["EOUserID"] = null;
+            Session["EOUserName"] = null;
+            return RedirectToAction("Login");
         }
 
         protected override void Dispose(bool disposing)

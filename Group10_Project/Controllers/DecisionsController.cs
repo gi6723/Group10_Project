@@ -36,30 +36,128 @@ namespace Group10_Project.Controllers
             return View(decision);
         }
 
-        // GET: Decisions/Create
-        public ActionResult Create()
+        // GET: Decisions/Create?requestId=001
+        public ActionResult Create(string requestId)
         {
-            ViewBag.EOID = new SelectList(db.EOs, "ID", "Name");
-            ViewBag.permitRequestID = new SelectList(db.PermitRequests, "requestNo", "activityDescription");
+            if (Session["EOUserID"] == null)
+            {
+                return RedirectToAction("Login", "EO");
+            }
+
+            if (string.IsNullOrEmpty(requestId))
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Request ID is required.");
+            }
+
+            var permitRequest = db.PermitRequests
+                .Include(p => p.EnvironmentalPermit)
+                .Include(p => p.RE)
+                .FirstOrDefault(p => p.requestNo == requestId);
+
+            if (permitRequest == null)
+            {
+                return HttpNotFound();
+            }
+
+            ViewBag.RequestId = permitRequest.requestNo;
+            ViewBag.PermitName = permitRequest.EnvironmentalPermit != null
+                ? permitRequest.EnvironmentalPermit.permitName
+                : permitRequest.permitTypeID;
+            ViewBag.REName = permitRequest.RE != null
+                ? permitRequest.RE.contactPersonName
+                : permitRequest.permitREID;
+            ViewBag.EOName = Session["EOUserName"] != null ? Session["EOUserName"].ToString() : "";
+
             return View();
         }
 
-        // POST: Decisions/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "ID,dateOfDecision,finalDecision,description,EOID,permitRequestID")] Decision decision)
+        public ActionResult Create(string requestId, [Bind(Include = "finalDecision,description")] Decision decision)
         {
-            if (ModelState.IsValid)
+            if (Session["EOUserID"] == null)
             {
-                db.Decisions.Add(decision);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Login", "EO");
             }
 
-            ViewBag.EOID = new SelectList(db.EOs, "ID", "Name", decision.EOID);
-            ViewBag.permitRequestID = new SelectList(db.PermitRequests, "requestNo", "activityDescription", decision.permitRequestID);
+            if (string.IsNullOrEmpty(requestId))
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Request ID is required.");
+            }
+
+            var permitRequest = db.PermitRequests
+                .Include(p => p.EnvironmentalPermit)
+                .Include(p => p.RE)
+                .FirstOrDefault(p => p.requestNo == requestId);
+
+            if (permitRequest == null)
+            {
+                return HttpNotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                string currentEOId = Session["EOUserID"].ToString();
+
+                decision.ID = "DEC_" + Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
+                decision.dateOfDecision = DateTime.Now;
+                decision.EOID = currentEOId;
+                decision.permitRequestID = permitRequest.requestNo;
+
+                db.Decisions.Add(decision);
+                db.SaveChanges();
+
+                // Remove any existing status rows for this request
+                var oldStatuses = db.RequestStatus
+                    .Where(rs => rs.requestID == permitRequest.requestNo)
+                    .ToList();
+
+                foreach (var oldStatus in oldStatuses)
+                {
+                    db.RequestStatus.Remove(oldStatus);
+                }
+
+                db.SaveChanges();
+
+                // Insert new unique status row
+                DateTime today = DateTime.Today;
+                string uniqueDecisionStatus = decision.finalDecision + " - " + permitRequest.requestNo;
+
+                var newStatus = new RequestStatu
+                {
+                    permitRequestStatus = uniqueDecisionStatus,
+                    date = today,
+                    description = decision.description,
+                    requestID = permitRequest.requestNo
+                };
+
+                db.RequestStatus.Add(newStatus);
+
+                // Optional email/archive record
+                var emailArchive = new EmailArchive
+                {
+                    emailID = "EMAIL_" + Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper(),
+                    emailDate = DateTime.Now,
+                    reason = "EO decision recorded: " + decision.finalDecision,
+                    REID = permitRequest.permitREID
+                };
+
+                db.EmailArchives.Add(emailArchive);
+
+                db.SaveChanges();
+
+                return RedirectToAction("Dashboard", "EO");
+            }
+
+            ViewBag.RequestId = permitRequest.requestNo;
+            ViewBag.PermitName = permitRequest.EnvironmentalPermit != null
+                ? permitRequest.EnvironmentalPermit.permitName
+                : permitRequest.permitTypeID;
+            ViewBag.REName = permitRequest.RE != null
+                ? permitRequest.RE.contactPersonName
+                : permitRequest.permitREID;
+            ViewBag.EOName = Session["EOUserName"] != null ? Session["EOUserName"].ToString() : "";
+
             return View(decision);
         }
 
