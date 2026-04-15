@@ -326,6 +326,7 @@
     <Content Include="Views\REs\Dashboard.cshtml" />
     <Content Include="Views\EO\Login.cshtml" />
     <Content Include="Views\EO\Dashboard.cshtml" />
+    <Content Include="Views\EO\ChangePassword.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

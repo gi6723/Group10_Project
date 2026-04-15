@@ -13,7 +13,7 @@ namespace Group10_Project.Controllers
     public class EOController : Controller
     {
         private Group10_DBEntities db = new Group10_DBEntities();
-
+        private static string EOpassword = "password";
         // GET: EO
         public ActionResult Index()
         {
@@ -129,7 +129,7 @@ namespace Group10_Project.Controllers
         {
             var eoUser = db.EOs.FirstOrDefault(e => e.ID == id);
 
-            if (eoUser != null && password == "password")
+            if (eoUser != null && password == EOpassword)
             {
                 Session["EOUserID"] = eoUser.ID;
                 Session["EOUserName"] = eoUser.Name;
@@ -139,6 +139,21 @@ namespace Group10_Project.Controllers
 
             ViewBag.Error = "Invalid EO ID or password.";
             return View();
+        }
+
+        public ActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ChangePassword(string new_password)
+        {
+            System.Diagnostics.Debug.WriteLine("Input: " + new_password);
+            System.Diagnostics.Debug.WriteLine("Input: " + EOpassword);
+            EOpassword = new_password;
+            return RedirectToAction("Dashboard");
         }
 
         public ActionResult Dashboard()
