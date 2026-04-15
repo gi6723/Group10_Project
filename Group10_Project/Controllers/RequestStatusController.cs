@@ -28,7 +28,7 @@ namespace Group10_Project.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            RequestStatu requestStatu = db.RequestStatus.Find(id);
+            RequestStatus requestStatu = db.RequestStatus.Find(id);
             if (requestStatu == null)
             {
                 return HttpNotFound();
@@ -48,7 +48,7 @@ namespace Group10_Project.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "permitRequestStatus,date,description,requestID")] RequestStatu requestStatu)
+        public ActionResult Create([Bind(Include = "permitRequestStatus,date,description,requestID")] RequestStatus requestStatu)
         {
             if (ModelState.IsValid)
             {
@@ -68,7 +68,7 @@ namespace Group10_Project.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            RequestStatu requestStatu = db.RequestStatus.Find(id);
+            RequestStatus requestStatu = db.RequestStatus.Find(id);
             if (requestStatu == null)
             {
                 return HttpNotFound();
@@ -82,7 +82,7 @@ namespace Group10_Project.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "permitRequestStatus,date,description,requestID")] RequestStatu requestStatu)
+        public ActionResult Edit([Bind(Include = "permitRequestStatus,date,description,requestID")] RequestStatus requestStatu)
         {
             if (ModelState.IsValid)
             {
@@ -101,7 +101,7 @@ namespace Group10_Project.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            RequestStatu requestStatu = db.RequestStatus.Find(id);
+            RequestStatus requestStatu = db.RequestStatus.Find(id);
             if (requestStatu == null)
             {
                 return HttpNotFound();
@@ -114,7 +114,7 @@ namespace Group10_Project.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(string id)
         {
-            RequestStatu requestStatu = db.RequestStatus.Find(id);
+            RequestStatus requestStatu = db.RequestStatus.Find(id);
             db.RequestStatus.Remove(requestStatu);
             db.SaveChanges();
             return RedirectToAction("Index");

@@ -68,6 +68,34 @@ namespace Group10_Project.Controllers
                 : permitRequest.permitREID;
             ViewBag.EOName = Session["EOUserName"] != null ? Session["EOUserName"].ToString() : "";
 
+            var existingReviewStatus = db.RequestStatus
+                .Where(rs => rs.requestID == permitRequest.requestNo)
+                .ToList()
+                .OrderByDescending(rs => rs.date)
+                .FirstOrDefault(rs => rs.permitRequestStatus.StartsWith("Being Reviewed"));
+
+            var latestStatus = db.RequestStatus
+                .Where(rs => rs.requestID == permitRequest.requestNo)
+                .ToList()
+                .OrderByDescending(rs => rs.date)
+                .FirstOrDefault();
+
+            if (latestStatus != null &&
+                latestStatus.permitRequestStatus.StartsWith("Submitted") &&
+                existingReviewStatus == null)
+            {
+                var reviewStatus = new RequestStatus
+                {
+                    permitRequestStatus = "Being Reviewed - " + permitRequest.requestNo,
+                    date = DateTime.Today,
+                    description = "EO opened the application for review.",
+                    requestID = permitRequest.requestNo
+                };
+
+                db.RequestStatus.Add(reviewStatus);
+                db.SaveChanges();
+            }
+
             return View();
         }
 
@@ -107,23 +135,11 @@ namespace Group10_Project.Controllers
                 db.Decisions.Add(decision);
                 db.SaveChanges();
 
-                // Remove any existing status rows for this request
-                var oldStatuses = db.RequestStatus
-                    .Where(rs => rs.requestID == permitRequest.requestNo)
-                    .ToList();
-
-                foreach (var oldStatus in oldStatuses)
-                {
-                    db.RequestStatus.Remove(oldStatus);
-                }
-
-                db.SaveChanges();
-
                 // Insert new unique status row
                 DateTime today = DateTime.Today;
                 string uniqueDecisionStatus = decision.finalDecision + " - " + permitRequest.requestNo;
 
-                var newStatus = new RequestStatu
+                var newStatus = new RequestStatus
                 {
                     permitRequestStatus = uniqueDecisionStatus,
                     date = today,
@@ -147,7 +163,7 @@ namespace Group10_Project.Controllers
                 db.SaveChanges();
 
                 // make actual permit if decision is approved
-                if(decision.finalDecision.Equals("Approved"))
+                if(decision.finalDecision.Equals("Accepted"))
                 {
                     var finalPermit = new Permit
                     {

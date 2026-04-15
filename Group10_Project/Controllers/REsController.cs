@@ -194,17 +194,25 @@ namespace Group10_Project.Controllers
                     {
                         displayStatus = "Pending Payment";
                     }
+                    else if (latestStatus.permitRequestStatus.StartsWith("Submitted"))
+                    {
+                        displayStatus = "Submitted";
+                    }
                     else if (latestStatus.permitRequestStatus.StartsWith("Being Reviewed"))
                     {
                         displayStatus = "Being Reviewed";
                     }
-                    else if (latestStatus.permitRequestStatus.StartsWith("Approved"))
+                    else if (latestStatus.permitRequestStatus.StartsWith("Accepted"))
                     {
-                        displayStatus = "Approved";
+                        displayStatus = "Accepted";
                     }
                     else if (latestStatus.permitRequestStatus.StartsWith("Rejected"))
                     {
                         displayStatus = "Rejected";
+                    }
+                    else if (latestStatus.permitRequestStatus.StartsWith("Permit Issued"))
+                    {
+                        displayStatus = "Permit Issued";
                     }
                     else
                     {
@@ -227,10 +235,10 @@ namespace Group10_Project.Controllers
                     StatusDescription = latestStatus != null ? latestStatus.description : "No status recorded yet.",
 
                     CanPay = latestStatus == null || latestStatus.permitRequestStatus.StartsWith("Pending Payment"),
-                    CanViewPermit = latestStatus != null && latestStatus.permitRequestStatus == "Issued",
+                    CanViewPermit = latestStatus != null && latestStatus.permitRequestStatus.StartsWith("Permit Issued"),
                     CanViewDecision = latestStatus != null &&
-                                      (latestStatus.permitRequestStatus.StartsWith("Approved") ||
-                                       latestStatus.permitRequestStatus.StartsWith("Rejected"))
+                                      (latestStatus.permitRequestStatus.StartsWith("Accepted") ||
+                                      latestStatus.permitRequestStatus.StartsWith("Rejected"))
                 };
 
                 model.Requests.Add(item);

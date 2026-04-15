@@ -161,19 +161,19 @@ namespace Group10_Project.Controllers
                     .Where(rs => rs.requestID == req.requestNo)
                     .ToList()
                     .OrderByDescending(rs =>
-                        rs.permitRequestStatus == "Issued" ? 6 :
-                        rs.permitRequestStatus == "Approved" ? 5 :
-                        rs.permitRequestStatus == "Rejected" ? 4 :
+                        rs.permitRequestStatus.StartsWith("Permit Issued") ? 6 :
+                        rs.permitRequestStatus.StartsWith("Accepted") ? 5 :
+                        rs.permitRequestStatus.StartsWith("Rejected") ? 4 :
                         rs.permitRequestStatus.StartsWith("Being Reviewed") ? 3 :
-                        rs.permitRequestStatus == "Submitted" ? 2 :
+                        rs.permitRequestStatus.StartsWith("Submitted") ? 2 :
                         rs.permitRequestStatus.StartsWith("Pending Payment") ? 1 : 0)
                     .ThenByDescending(rs => rs.date)
                     .FirstOrDefault();
 
-                if (latestStatus != null &&
-                    (latestStatus.permitRequestStatus == "Submitted" ||
-                     latestStatus.permitRequestStatus.StartsWith("Being Reviewed")))
-                {
+                if(latestStatus != null &&
+                   (latestStatus.permitRequestStatus.StartsWith("Submitted") ||
+                    latestStatus.permitRequestStatus.StartsWith("Being Reviewed")))
+{
                     reviewQueue.Add(req);
                 }
             }

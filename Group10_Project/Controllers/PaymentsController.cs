@@ -118,11 +118,11 @@ namespace Group10_Project.Controllers
 
                 DateTime today = DateTime.Today;
 
-                var paymentStatus = new RequestStatu
+                var paymentStatus = new RequestStatus
                 {
-                    permitRequestStatus = "Being Reviewed - " + permitRequest.requestNo,
+                    permitRequestStatus = "Submitted - " + permitRequest.requestNo,
                     date = today,
-                    description = "Payment received and application submitted for review.",
+                    description = "Payment received successfully. Application submitted.",
                     requestID = permitRequest.requestNo
                 };
 
