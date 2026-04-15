@@ -22,6 +22,7 @@
 <p>
     @Html.ActionLink("Create New Permit Request", "Create", "PermitRequests", null, new { @class = "btn btn-primary" })
     @Html.ActionLink("Manage My Account", "Edit", "REs", new { id = Model.REID }, new { @class = "btn btn-default" })
+    @Html.ActionLink("View Issued Permits","Index","Permit", null, new { @class = "btn btn-default" })
 </p>
 
 <h3>My Permit Requests</h3>
@@ -67,10 +68,10 @@ else
                             @Html.ActionLink("Pay Fee", "Create", "Payments", new { requestId = req.RequestNo }, new { @class = "btn btn-xs btn-warning" })}
 
                         @if (req.CanViewDecision)
-                        {
+                        {<!---
                             @Html.Raw(" ")
                             @Html.ActionLink("View Status", "Index", "RequestStatus", null, new { @class = "btn btn-xs btn-default" })
-                        }
+                     -->   }
 
                         @if (req.CanViewPermit)
                         {

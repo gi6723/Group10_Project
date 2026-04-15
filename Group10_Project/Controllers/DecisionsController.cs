@@ -146,6 +146,24 @@ namespace Group10_Project.Controllers
 
                 db.SaveChanges();
 
+                // make actual permit if decision is approved
+                if(decision.finalDecision.Equals("Approved"))
+                {
+                    var finalPermit = new Permit
+                    {
+                        permitID = "P_" + Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper(),
+                        dateOfIssue = DateTime.Now,
+                        duration = "1 Year",
+                        description = permitRequest.activityDescription,
+                        issuedBy = currentEOId,
+                        issuedTo = permitRequest.permitREID,
+                        relatedTo = permitRequest.requestNo
+                    };
+
+                    db.Permits.Add(finalPermit);
+                    db.SaveChanges();
+                }
+
                 return RedirectToAction("Dashboard", "EO");
             }
 
