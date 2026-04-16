@@ -187,7 +187,7 @@
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\REDashboardViewModel.cs" />
-    <Compile Include="Models\RequestStatu.cs">
+    <Compile Include="Models\RequestStatus.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\RESite.cs">
@@ -326,6 +326,7 @@
     <Content Include="Views\REs\Dashboard.cshtml" />
     <Content Include="Views\EO\Login.cshtml" />
     <Content Include="Views\EO\Dashboard.cshtml" />
+    <Content Include="Views\Permit\Issue.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

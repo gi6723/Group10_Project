@@ -12,7 +12,7 @@ namespace Group10_Project.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class RequestStatu
+    public partial class RequestStatus
     {
         public string permitRequestStatus { get; set; }
         public System.DateTime date { get; set; }

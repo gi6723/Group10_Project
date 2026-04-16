@@ -34,7 +34,7 @@ namespace Group10_Project.Models
         public virtual DbSet<Permit> Permits { get; set; }
         public virtual DbSet<PermitRequest> PermitRequests { get; set; }
         public virtual DbSet<RE> REs { get; set; }
-        public virtual DbSet<RequestStatu> RequestStatus { get; set; }
+        public virtual DbSet<RequestStatus> RequestStatus { get; set; }
         public virtual DbSet<RESite> RESites { get; set; }
     }
 }

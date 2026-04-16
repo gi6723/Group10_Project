@@ -73,7 +73,22 @@ namespace Group10_Project.Controllers
                 };
 
                 db.RESites.Add(newSite);
-                db.SaveChanges();
+
+                try
+                {
+                    db.SaveChanges();
+                }
+                catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+                {
+                    var errorMessages = ex.EntityValidationErrors
+                        .SelectMany(x => x.ValidationErrors)
+                        .Select(x => $"{x.PropertyName}: {x.ErrorMessage}");
+
+                    var fullErrorMessage = string.Join("; ", errorMessages);
+                    var exceptionMessage = string.Concat(ex.Message, " The validation errors are: ", fullErrorMessage);
+
+                    throw new System.Data.Entity.Validation.DbEntityValidationException(exceptionMessage, ex.EntityValidationErrors);
+                }
 
                 return RedirectToAction("Index", "Home");
             }
@@ -178,11 +193,11 @@ namespace Group10_Project.Controllers
                     .Where(rs => rs.requestID == req.requestNo)
                     .ToList()
                     .OrderByDescending(rs =>
-                        rs.permitRequestStatus == "Issued" ? 6 :
-                        rs.permitRequestStatus.StartsWith("Approved") ? 5 :
+                        rs.permitRequestStatus.StartsWith("Permit Issued") ? 6 :
+                        rs.permitRequestStatus.StartsWith("Accepted") ? 5 :
                         rs.permitRequestStatus.StartsWith("Rejected") ? 4 :
                         rs.permitRequestStatus.StartsWith("Being Reviewed") ? 3 :
-                        rs.permitRequestStatus == "Submitted" ? 2 :
+                        rs.permitRequestStatus.StartsWith("Submitted") ? 2 :
                         rs.permitRequestStatus.StartsWith("Pending Payment") ? 1 : 0)
                     .ThenByDescending(rs => rs.date)
                     .FirstOrDefault();
@@ -195,17 +210,25 @@ namespace Group10_Project.Controllers
                     {
                         displayStatus = "Pending Payment";
                     }
+                    else if (latestStatus.permitRequestStatus.StartsWith("Submitted"))
+                    {
+                        displayStatus = "Submitted";
+                    }
                     else if (latestStatus.permitRequestStatus.StartsWith("Being Reviewed"))
                     {
                         displayStatus = "Being Reviewed";
                     }
-                    else if (latestStatus.permitRequestStatus.StartsWith("Approved"))
+                    else if (latestStatus.permitRequestStatus.StartsWith("Accepted"))
                     {
-                        displayStatus = "Approved";
+                        displayStatus = "Accepted";
                     }
                     else if (latestStatus.permitRequestStatus.StartsWith("Rejected"))
                     {
                         displayStatus = "Rejected";
+                    }
+                    else if (latestStatus.permitRequestStatus.StartsWith("Permit Issued"))
+                    {
+                        displayStatus = "Permit Issued";
                     }
                     else
                     {
@@ -228,10 +251,10 @@ namespace Group10_Project.Controllers
                     StatusDescription = latestStatus != null ? latestStatus.description : "No status recorded yet.",
 
                     CanPay = latestStatus == null || latestStatus.permitRequestStatus.StartsWith("Pending Payment"),
-                    CanViewPermit = latestStatus != null && latestStatus.permitRequestStatus == "Issued",
+                    CanViewPermit = latestStatus != null && latestStatus.permitRequestStatus.StartsWith("Permit Issued"),
                     CanViewDecision = latestStatus != null &&
-                                      (latestStatus.permitRequestStatus.StartsWith("Approved") ||
-                                       latestStatus.permitRequestStatus.StartsWith("Rejected"))
+                                      (latestStatus.permitRequestStatus.StartsWith("Accepted") ||
+                                      latestStatus.permitRequestStatus.StartsWith("Rejected"))
                 };
 
                 model.Requests.Add(item);

@@ -100,7 +100,7 @@ namespace Group10_Project.Controllers
                 DateTime today = DateTime.Today;
                 var uniquePendingStatus = "Pending Payment - " + permitRequest.requestNo;
 
-                var initialStatus = new RequestStatu
+                var initialStatus = new RequestStatus
                 {
                     permitRequestStatus = uniquePendingStatus,
                     date = today,

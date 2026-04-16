@@ -441,7 +441,7 @@
           <NavigationProperty Name="PermitRequests" Relationship="Self.fk_REID" FromRole="RE" ToRole="PermitRequest" />
           <NavigationProperty Name="RESite" Relationship="Self.fk_RE" FromRole="RE" ToRole="RESite" />
         </EntityType>
-        <EntityType Name="RequestStatu">
+        <EntityType Name="RequestStatus">
           <Key>
             <PropertyRef Name="permitRequestStatus" />
             <PropertyRef Name="date" />
@@ -583,7 +583,7 @@
         </Association>
         <Association Name="req_fk">
           <End Role="PermitRequest" Type="Self.PermitRequest" Multiplicity="1" />
-          <End Role="RequestStatus" Type="Self.RequestStatu" Multiplicity="*" />
+          <End Role="RequestStatus" Type="Self.RequestStatus" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="PermitRequest">
               <PropertyRef Name="requestNo" />
@@ -615,7 +615,7 @@
           <EntitySet Name="Permits" EntityType="Self.Permit" />
           <EntitySet Name="PermitRequests" EntityType="Self.PermitRequest" />
           <EntitySet Name="REs" EntityType="Self.RE" />
-          <EntitySet Name="RequestStatus" EntityType="Self.RequestStatu" />
+          <EntitySet Name="RequestStatus" EntityType="Self.RequestStatus" />
           <EntitySet Name="RESites" EntityType="Self.RESite" />
           <AssociationSet Name="fk_EO" Association="Self.fk_EO">
             <End Role="EO" EntitySet="EOs" />
@@ -775,7 +775,7 @@
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="RequestStatus">
-            <EntityTypeMapping TypeName="Group10_DBModel.RequestStatu">
+            <EntityTypeMapping TypeName="Group10_DBModel.RequestStatus">
               <MappingFragment StoreEntitySet="RequestStatus">
                 <ScalarProperty Name="permitRequestStatus" ColumnName="permitRequestStatus" />
                 <ScalarProperty Name="date" ColumnName="date" />

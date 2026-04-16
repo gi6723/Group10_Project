@@ -1,0 +1,43 @@
+﻿@{
+    ViewBag.Title = "Issue Permit";
+}
+
+<h2>Issue Permit</h2>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong>Accepted Request Information</strong>
+    </div>
+    <div class="panel-body">
+        <p><strong>Request No:</strong> @ViewBag.RequestId</p>
+        <p><strong>Regulated Entity:</strong> @ViewBag.REName</p>
+        <p><strong>Permit:</strong> @ViewBag.PermitName</p>
+        <p><strong>Activity Description:</strong> @ViewBag.ActivityDescription</p>
+    </div>
+</div>
+
+@using (Html.BeginForm("Issue", "Permit", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+
+    @Html.Hidden("requestId", (string)ViewBag.RequestId)
+
+    <div class="form-horizontal">
+        <h4>Permit Details</h4>
+        <hr />
+
+        <div class="form-group">
+            @Html.Label("duration", "Permit Duration", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <input type="text" name="duration" class="form-control" value="1 Year" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Issue Permit" class="btn btn-success" />
+                @Html.ActionLink("Cancel", "Dashboard", "EO", null, new { @class = "btn btn-default" })
+            </div>
+        </div>
+    </div>
+}

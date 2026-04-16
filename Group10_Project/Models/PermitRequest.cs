@@ -19,7 +19,7 @@ namespace Group10_Project.Models
         {
             this.Decisions = new HashSet<Decision>();
             this.Permits = new HashSet<Permit>();
-            this.RequestStatus = new HashSet<RequestStatu>();
+            this.RequestStatus = new HashSet<RequestStatus>();
         }
     
         public string requestNo { get; set; }
@@ -40,6 +40,6 @@ namespace Group10_Project.Models
         public virtual ICollection<Permit> Permits { get; set; }
         public virtual RE RE { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<RequestStatu> RequestStatus { get; set; }
+        public virtual ICollection<RequestStatus> RequestStatus { get; set; }
     }
 }
