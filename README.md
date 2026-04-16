@@ -83,9 +83,64 @@ Group10_Project/
 └── packages/                           # NuGet dependencies (Entity Framework, MVC, etc.)
 ```
 
-## Project Requirments
+## Project Requirements
 
 Install the following 
-- Visual Studio 2022 and import the **.vsconfig** located in the repo
-- SQL Server 2022
-- SQL Server Management Studio (SSMS)
+- **Visual Studio 2022** 
+  - Then import the **.vsconfig** loacted in the repo:
+    - modify --> import configuration 
+- **Microsoft SQL Server 2022**
+- **SQL Server Management Studio (SSMS)**
+
+## Database setup
+1. Open SSMS
+2. Connect to local SQL Server instance
+3. Open: **dbsetup.sql**
+4. Execute the script
+
+This creates:
+- DB Schema
+- Required Tables
+- Initial Data
+
+## Project Setup
+1. Open VS 2022 
+2. Use "Clone a repository" to clone and open the project
+3. Set startup project:
+  - Right-click Group10_Project
+  - Select Set as Startup Project
+4.  At the top of VS, select the **Tools** dropdown and click **Connect to Database...**
+5. You should see the Server Explorer window pop up on the far left side
+6. Under **Data Connections**, there should be a DB named **Group10_DBEntities (Group10_Project)** to connect to
+7. Finally, at the top of VS, select the **Build** tab and build the solution
+5. You can then run the project
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
