@@ -17,12 +17,32 @@ namespace Group10_Project.Controllers
         // GET: Permit
         public ActionResult Index()
         {
+            // 1. Get the base query (don't execute .ToList() yet!)
             var permits = db.Permits
                 .Include(p => p.EO)
                 .Include(p => p.RE)
                 .Include(p => p.PermitRequest);
 
-            return View(permits.ToList());
+            // 2. Check if an EO is logged in
+            if (Session["EOID"] != null)
+            {
+                // EO sees everything - no filtering needed
+                return View(permits.ToList());
+            }
+
+            // 3. Check if an RE is logged in
+            if (Session["UserID"] != null)
+            {
+                string currentREID = Session["UserID"].ToString();
+
+                // Filter: Only permits where the REID matches the logged-in user
+                var myPermits = permits.Where(p => p.issuedTo == currentREID).ToList();
+
+                return View(myPermits);
+            }
+
+            // 4. If all else fails return to dashboard
+            return View("Dashboard");
         }
 
         // GET: Permit/Details/5
@@ -40,6 +60,25 @@ namespace Group10_Project.Controllers
             }
 
             return View(permit);
+        }
+
+        public ActionResult IssuedPermit(string id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            // Search by the Foreign Key 'relatedTo' instead of the Primary Key
+            var permit = db.Permits.FirstOrDefault(p => p.relatedTo == id);
+
+            if (permit == null)
+            {
+                // This handles cases where a permit hasn't been issued yet
+                return HttpNotFound("No permit record found for this request.");
+            }
+
+            return View("Details", permit);
         }
 
         // GET: Permit/Issue?requestId=REQ_123ABC

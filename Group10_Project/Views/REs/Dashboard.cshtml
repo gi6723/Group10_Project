@@ -76,7 +76,7 @@ else
                         @if (req.CanViewPermit)
                         {
                             @Html.Raw(" ")
-                            @Html.ActionLink("View Permit", "Index", "Permit", null, new { @class = "btn btn-xs btn-success" })
+                            @Html.ActionLink("View Permit", "IssuedPermit", "Permit", new { id = req.RequestNo }, new { @class = "btn btn-xs btn-success" })
                         }
                     </td>
                 </tr>
