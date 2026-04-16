@@ -1,6 +1,7 @@
 ﻿using Group10_Project.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Data.Entity;
 using System.Linq;
@@ -277,6 +278,51 @@ namespace Group10_Project.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        public ActionResult PasswordChangeView()
+        {
+            if (Session["UserId"] == null)
+                return RedirectToAction("Login", "Account");
+
+            return View();
+        }
+        [HttpPost]
+        public ActionResult PasswordChangeView(string currentPassword, string newPassword, string confirmPassword)
+        {
+            if (Session["UserId"] == null)
+                return RedirectToAction("Login", "Account");
+
+            // Check confirm password
+            if (newPassword != confirmPassword)
+            {
+                ViewBag.Error = "New passwords do not match";
+                return View();
+            }
+
+            using (var db = new Group10_DBEntities())
+            {
+                string userId = Session["UserId"].ToString();
+
+                var user = db.REs.FirstOrDefault(u => u.ID == userId);
+
+                if (user == null)
+                    return HttpNotFound();
+
+                // Check current password
+                if (user.password != currentPassword)
+                {
+                    ViewBag.Error = "Current password is incorrect";
+                    return View();
+                }
+
+                // Update password
+                user.password = newPassword;
+                db.SaveChanges();
+            }
+
+            ViewBag.Message = "Password updated successfully!";
+            return View();
         }
     }
 }
