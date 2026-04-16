@@ -68,16 +68,22 @@ namespace Group10_Project.Controllers
                 : permitRequest.permitREID;
             ViewBag.EOName = Session["EOUserName"] != null ? Session["EOUserName"].ToString() : "";
 
-            var existingReviewStatus = db.RequestStatus
+            var allStatuses = db.RequestStatus
                 .Where(rs => rs.requestID == permitRequest.requestNo)
-                .ToList()
-                .OrderByDescending(rs => rs.date)
+                .ToList();
+
+            var existingReviewStatus = allStatuses
                 .FirstOrDefault(rs => rs.permitRequestStatus.StartsWith("Being Reviewed"));
 
-            var latestStatus = db.RequestStatus
-                .Where(rs => rs.requestID == permitRequest.requestNo)
-                .ToList()
-                .OrderByDescending(rs => rs.date)
+            var latestStatus = allStatuses
+                .OrderByDescending(rs =>
+                    rs.permitRequestStatus.StartsWith("Permit Issued") ? 6 :
+                    rs.permitRequestStatus.StartsWith("Accepted") ? 5 :
+                    rs.permitRequestStatus.StartsWith("Rejected") ? 4 :
+                    rs.permitRequestStatus.StartsWith("Being Reviewed") ? 3 :
+                    rs.permitRequestStatus.StartsWith("Submitted") ? 2 :
+                    rs.permitRequestStatus.StartsWith("Pending Payment") ? 1 : 0)
+                .ThenByDescending(rs => rs.date)
                 .FirstOrDefault();
 
             if (latestStatus != null &&
@@ -88,7 +94,7 @@ namespace Group10_Project.Controllers
                 {
                     permitRequestStatus = "Being Reviewed - " + permitRequest.requestNo,
                     date = DateTime.Today,
-                    description = "EO opened the application for review.",
+                    description = "Application is under review by EO.",
                     requestID = permitRequest.requestNo
                 };
 
@@ -162,23 +168,6 @@ namespace Group10_Project.Controllers
 
                 db.SaveChanges();
 
-                // make actual permit if decision is approved
-                if(decision.finalDecision.Equals("Accepted"))
-                {
-                    var finalPermit = new Permit
-                    {
-                        permitID = "P_" + Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper(),
-                        dateOfIssue = DateTime.Now,
-                        duration = "1 Year",
-                        description = permitRequest.activityDescription,
-                        issuedBy = currentEOId,
-                        issuedTo = permitRequest.permitREID,
-                        relatedTo = permitRequest.requestNo
-                    };
-
-                    db.Permits.Add(finalPermit);
-                    db.SaveChanges();
-                }
 
                 return RedirectToAction("Dashboard", "EO");
             }

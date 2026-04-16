@@ -17,7 +17,11 @@ namespace Group10_Project.Controllers
         // GET: Permit
         public ActionResult Index()
         {
-            var permits = db.Permits.Include(p => p.EO).Include(p => p.RE).Include(p => p.PermitRequest);
+            var permits = db.Permits
+                .Include(p => p.EO)
+                .Include(p => p.RE)
+                .Include(p => p.PermitRequest);
+
             return View(permits.ToList());
         }
 
@@ -28,12 +32,159 @@ namespace Group10_Project.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
             Permit permit = db.Permits.Find(id);
             if (permit == null)
             {
                 return HttpNotFound();
             }
+
             return View(permit);
+        }
+
+        // GET: Permit/Issue?requestId=REQ_123ABC
+        public ActionResult Issue(string requestId)
+        {
+            if (Session["EOUserID"] == null)
+            {
+                return RedirectToAction("Login", "EO");
+            }
+
+            if (string.IsNullOrEmpty(requestId))
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Request ID is required.");
+            }
+
+            var permitRequest = db.PermitRequests
+                .Include(p => p.RE)
+                .Include(p => p.EnvironmentalPermit)
+                .FirstOrDefault(p => p.requestNo == requestId);
+
+            if (permitRequest == null)
+            {
+                return HttpNotFound();
+            }
+
+            var latestStatus = db.RequestStatus
+                .Where(rs => rs.requestID == permitRequest.requestNo)
+                .ToList()
+                .OrderByDescending(rs =>
+                    rs.permitRequestStatus.StartsWith("Permit Issued") ? 6 :
+                    rs.permitRequestStatus.StartsWith("Accepted") ? 5 :
+                    rs.permitRequestStatus.StartsWith("Rejected") ? 4 :
+                    rs.permitRequestStatus.StartsWith("Being Reviewed") ? 3 :
+                    rs.permitRequestStatus.StartsWith("Submitted") ? 2 :
+                    rs.permitRequestStatus.StartsWith("Pending Payment") ? 1 : 0)
+                .ThenByDescending(rs => rs.date)
+                .FirstOrDefault();
+
+            if (latestStatus == null || !latestStatus.permitRequestStatus.StartsWith("Accepted"))
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Only accepted requests can be issued.");
+            }
+
+            var existingPermit = db.Permits.FirstOrDefault(p => p.relatedTo == permitRequest.requestNo);
+            if (existingPermit != null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "A permit has already been issued for this request.");
+            }
+
+            ViewBag.RequestId = permitRequest.requestNo;
+            ViewBag.REName = permitRequest.RE != null ? permitRequest.RE.contactPersonName : permitRequest.permitREID;
+            ViewBag.PermitName = permitRequest.EnvironmentalPermit != null
+                ? permitRequest.EnvironmentalPermit.permitName
+                : permitRequest.permitTypeID;
+            ViewBag.ActivityDescription = permitRequest.activityDescription;
+
+            return View();
+        }
+
+        // POST: Permit/Issue
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Issue(string requestId, string duration)
+        {
+            if (Session["EOUserID"] == null)
+            {
+                return RedirectToAction("Login", "EO");
+            }
+
+            if (string.IsNullOrEmpty(requestId))
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Request ID is required.");
+            }
+
+            var permitRequest = db.PermitRequests
+                .Include(p => p.RE)
+                .FirstOrDefault(p => p.requestNo == requestId);
+
+            if (permitRequest == null)
+            {
+                return HttpNotFound();
+            }
+
+            var latestStatus = db.RequestStatus
+                .Where(rs => rs.requestID == permitRequest.requestNo)
+                .ToList()
+                .OrderByDescending(rs =>
+                    rs.permitRequestStatus.StartsWith("Permit Issued") ? 6 :
+                    rs.permitRequestStatus.StartsWith("Accepted") ? 5 :
+                    rs.permitRequestStatus.StartsWith("Rejected") ? 4 :
+                    rs.permitRequestStatus.StartsWith("Being Reviewed") ? 3 :
+                    rs.permitRequestStatus.StartsWith("Submitted") ? 2 :
+                    rs.permitRequestStatus.StartsWith("Pending Payment") ? 1 : 0)
+                .ThenByDescending(rs => rs.date)
+                .FirstOrDefault();
+
+            if (latestStatus == null || !latestStatus.permitRequestStatus.StartsWith("Accepted"))
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Only accepted requests can be issued.");
+            }
+
+            var existingPermit = db.Permits.FirstOrDefault(p => p.relatedTo == permitRequest.requestNo);
+            if (existingPermit != null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "A permit has already been issued for this request.");
+            }
+
+            string currentEOId = Session["EOUserID"].ToString();
+
+            var finalPermit = new Permit
+            {
+                permitID = "P_" + Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper(),
+                dateOfIssue = DateTime.Now,
+                duration = string.IsNullOrWhiteSpace(duration) ? "1 Year" : duration,
+                description = permitRequest.activityDescription,
+                issuedBy = currentEOId,
+                issuedTo = permitRequest.permitREID,
+                relatedTo = permitRequest.requestNo
+            };
+
+            db.Permits.Add(finalPermit);
+
+            var issuedStatus = new RequestStatus
+            {
+                permitRequestStatus = "Permit Issued - " + permitRequest.requestNo,
+                date = DateTime.Today,
+                description = "Permit issued by EO.",
+                requestID = permitRequest.requestNo
+            };
+
+            db.RequestStatus.Add(issuedStatus);
+
+            var emailArchive = new EmailArchive
+            {
+                emailID = "EMAIL_" + Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper(),
+                emailDate = DateTime.Now,
+                reason = "Permit issued for accepted request.",
+                REID = permitRequest.permitREID
+            };
+
+            db.EmailArchives.Add(emailArchive);
+
+            db.SaveChanges();
+
+            return RedirectToAction("Dashboard", "EO");
         }
 
         // GET: Permit/Create
@@ -46,8 +197,6 @@ namespace Group10_Project.Controllers
         }
 
         // POST: Permit/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "permitID,dateOfIssue,duration,description,issuedBy,issuedTo,relatedTo")] Permit permit)
@@ -72,11 +221,13 @@ namespace Group10_Project.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
             Permit permit = db.Permits.Find(id);
             if (permit == null)
             {
                 return HttpNotFound();
             }
+
             ViewBag.issuedBy = new SelectList(db.EOs, "ID", "Name", permit.issuedBy);
             ViewBag.issuedTo = new SelectList(db.REs, "ID", "contactPersonName", permit.issuedTo);
             ViewBag.relatedTo = new SelectList(db.PermitRequests, "requestNo", "activityDescription", permit.relatedTo);
@@ -84,8 +235,6 @@ namespace Group10_Project.Controllers
         }
 
         // POST: Permit/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "permitID,dateOfIssue,duration,description,issuedBy,issuedTo,relatedTo")] Permit permit)
@@ -96,6 +245,7 @@ namespace Group10_Project.Controllers
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
+
             ViewBag.issuedBy = new SelectList(db.EOs, "ID", "Name", permit.issuedBy);
             ViewBag.issuedTo = new SelectList(db.REs, "ID", "contactPersonName", permit.issuedTo);
             ViewBag.relatedTo = new SelectList(db.PermitRequests, "requestNo", "activityDescription", permit.relatedTo);
@@ -109,11 +259,13 @@ namespace Group10_Project.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
             Permit permit = db.Permits.Find(id);
             if (permit == null)
             {
                 return HttpNotFound();
             }
+
             return View(permit);
         }
 
@@ -134,6 +286,7 @@ namespace Group10_Project.Controllers
             {
                 db.Dispose();
             }
+
             base.Dispose(disposing);
         }
     }

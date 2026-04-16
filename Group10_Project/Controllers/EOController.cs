@@ -154,6 +154,7 @@ namespace Group10_Project.Controllers
                 .ToList();
 
             var reviewQueue = new List<PermitRequest>();
+            var acceptedQueue = new List<PermitRequest>();
 
             foreach (var req in allRequests)
             {
@@ -170,13 +171,28 @@ namespace Group10_Project.Controllers
                     .ThenByDescending(rs => rs.date)
                     .FirstOrDefault();
 
-                if(latestStatus != null &&
-                   (latestStatus.permitRequestStatus.StartsWith("Submitted") ||
-                    latestStatus.permitRequestStatus.StartsWith("Being Reviewed")))
-{
+                if (latestStatus == null)
+                {
+                    continue;
+                }
+
+                if (latestStatus.permitRequestStatus.StartsWith("Submitted") ||
+                    latestStatus.permitRequestStatus.StartsWith("Being Reviewed"))
+                {
                     reviewQueue.Add(req);
                 }
+                else if (latestStatus.permitRequestStatus.StartsWith("Accepted"))
+                {
+                    var existingPermit = db.Permits.FirstOrDefault(p => p.relatedTo == req.requestNo);
+
+                    if (existingPermit == null)
+                    {
+                        acceptedQueue.Add(req);
+                    }
+                }
             }
+
+            ViewBag.AcceptedQueue = acceptedQueue;
 
             return View(reviewQueue);
         }

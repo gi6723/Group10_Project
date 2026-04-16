@@ -14,7 +14,7 @@
         <EntityTypeShape EntityType="Group10_DBModel.Permit" Width="1.5" PointX="3" PointY="9.25" IsExpanded="true" />
         <EntityTypeShape EntityType="Group10_DBModel.PermitRequest" Width="1.5" PointX="6" PointY="6.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Group10_DBModel.RE" Width="1.5" PointX="0.75" PointY="7.125" IsExpanded="true" />
-        <EntityTypeShape EntityType="Group10_DBModel.RequestStatu" Width="1.5" PointX="8.25" PointY="11" IsExpanded="true" />
+        <EntityTypeShape EntityType="Group10_DBModel.RequestStatus" Width="1.5" PointX="8.25" PointY="11" IsExpanded="true" />
         <EntityTypeShape EntityType="Group10_DBModel.RESite" Width="1.5" PointX="3" PointY="17.5" IsExpanded="true" />
         <AssociationConnector Association="Group10_DBModel.fk_EO" ManuallyRouted="false" />
         <AssociationConnector Association="Group10_DBModel.fk_PR" ManuallyRouted="false" />
