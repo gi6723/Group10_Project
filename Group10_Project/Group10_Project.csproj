@@ -317,11 +317,8 @@
     <Content Include="Views\REs\Dashboard.cshtml" />
     <Content Include="Views\EO\Login.cshtml" />
     <Content Include="Views\EO\Dashboard.cshtml" />
-<<<<<<< Updated upstream
-    <Content Include="Views\Permit\Issue.cshtml" />
-=======
-    <Content Include="Views\REs\PasswordChangeView.cshtml" />
->>>>>>> Stashed changes
+<Content Include="Views\Permit\Issue.cshtml" />
+<Content Include="Views\REs\PasswordChangeView.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Group10_Project.Models;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
+using System.Net.Mail;
 using System.Web;
 using System.Web.Mvc;
-using Group10_Project.Models;
 
 namespace Group10_Project.Controllers
 {
@@ -127,6 +128,33 @@ namespace Group10_Project.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        public void SendEmail(string toEmail, string subject, string body)
+        {
+            var senderEmail = new MailAddress("swegroup10ipermit@gmail.com", "iPermit System");
+            var receiverEmail = new MailAddress(toEmail);
+            var password = "zsymlbehmwekyzfa"; // NOT your login password
+
+            var smtp = new SmtpClient
+            {
+                Host = "smtp.gmail.com",
+                Port = 587,
+                EnableSsl = true,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                UseDefaultCredentials = false,
+                Credentials = new NetworkCredential(senderEmail.Address, password)
+            };
+
+            using (var message = new MailMessage(senderEmail, receiverEmail)
+            {
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = true
+            })
+            {
+                smtp.Send(message);
+            }
         }
     }
 }

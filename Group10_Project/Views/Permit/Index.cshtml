@@ -50,9 +50,7 @@
             @Html.DisplayFor(modelItem => item.PermitRequest.activityDescription)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.permitID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.permitID }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.permitID })
+            @Html.ActionLink("Details", "Details", new { id=item.permitID })
         </td>
     </tr>
 }

@@ -24,7 +24,7 @@ namespace Group10_Project.Controllers
                 .Include(p => p.PermitRequest);
 
             // 2. Check if an EO is logged in
-            if (Session["EOID"] != null)
+            if (Session["EOUserID"] != null)
             {
                 // EO sees everything - no filtering needed
                 return View(permits.ToList());
@@ -42,7 +42,7 @@ namespace Group10_Project.Controllers
             }
 
             // 4. If all else fails return to dashboard
-            return View("Dashboard");
+            return View(permits);
         }
 
         // GET: Permit/Details/5
