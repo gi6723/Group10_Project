@@ -11,7 +11,8 @@ namespace Group10_Project.Models
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations;
+
     public partial class RE
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -23,11 +24,16 @@ namespace Group10_Project.Models
         }
     
         public string ID { get; set; }
+        [Display(Name = "Contact Person Name")]
         public string contactPersonName { get; set; }
         public string password { get; set; }
+        [Display(Name = "Created Date")]
         public Nullable<System.DateTime> createdDate { get; set; }
+        [Display(Name = "Email")]
         public string email { get; set; }
+        [Display(Name = "Organization Name")]
         public string organizationName { get; set; }
+        [Display(Name = "Organization Address")]
         public string organizationAddress { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

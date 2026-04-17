@@ -11,7 +11,8 @@ namespace Group10_Project.Models
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations;
+
     public partial class EnvironmentalPermit
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -21,6 +22,7 @@ namespace Group10_Project.Models
         }
     
         public string permitID { get; set; }
+        [Display(Name = "Permit Name")]
         public string permitName { get; set; }
         public Nullable<double> permitFee { get; set; }
         public string description { get; set; }

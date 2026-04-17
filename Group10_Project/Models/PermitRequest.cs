@@ -11,7 +11,36 @@ namespace Group10_Project.Models
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations;
+    using System.Web.Mvc;
+
+    public class NotPastDateAttribute : ValidationAttribute, IClientValidatable
+    {
+        public override bool IsValid(object value)
+        {
+            if (value == null)
+                return true;
+
+            DateTime date = Convert.ToDateTime(value);
+            return date.Date >= DateTime.Now.Date;
+        }
+
+        public IEnumerable<ModelClientValidationRule> GetClientValidationRules(
+            ModelMetadata metadata, ControllerContext context)
+        {
+            var rule = new ModelClientValidationRule
+            {
+                ValidationType = "notpastdate",
+                ErrorMessage = this.ErrorMessage
+            };
+
+            // Pass today's date to the client script
+            rule.ValidationParameters["today"] = DateTime.Now.ToString("yyyy-MM-dd");
+
+            yield return rule;
+        }
+    }
+
     public partial class PermitRequest
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -21,12 +50,19 @@ namespace Group10_Project.Models
             this.Permits = new HashSet<Permit>();
             this.RequestStatus = new HashSet<RequestStatus>();
         }
-    
+
+        [Display(Name = "Request Number")]
         public string requestNo { get; set; }
+        [Display(Name = "Date of Request")]
         public Nullable<System.DateTime> dateOfRequest { get; set; }
+        [Display(Name = "Activity Description")]
         public string activityDescription { get; set; }
+        [NotPastDate(ErrorMessage = "You can't pick a date before today.")]
+        [Display(Name = "Activity Start Date")]
         public Nullable<System.DateTime> activityStartDate { get; set; }
+        [Display(Name = "Aactivity Duration")]
         public Nullable<System.DateTime> activityDuration { get; set; }
+        [Display(Name = "Permit Fee")]
         public Nullable<double> permitFee { get; set; }
         public string permitTypeID { get; set; }
         public string permitREID { get; set; }

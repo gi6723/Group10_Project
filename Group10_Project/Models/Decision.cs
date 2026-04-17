@@ -11,12 +11,16 @@ namespace Group10_Project.Models
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations;
+
     public partial class Decision
     {
         public string ID { get; set; }
+        [Display(Name = "Date Of Decision")]
         public Nullable<System.DateTime> dateOfDecision { get; set; }
+        [Display(Name = "Final Decision")]
         public string finalDecision { get; set; }
+        [Display(Name = "Description")]
         public string description { get; set; }
         public string EOID { get; set; }
         public string permitRequestID { get; set; }

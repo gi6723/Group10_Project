@@ -11,7 +11,8 @@ namespace Group10_Project.Models
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations;
+
     public partial class Payment
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -22,6 +23,7 @@ namespace Group10_Project.Models
     
         public string paymentID { get; set; }
         public Nullable<System.DateTime> paymentDate { get; set; }
+        [Display(Name = "Payment Method")]
         public string paymentMethod { get; set; }
         public Nullable<double> last4CardDigit { get; set; }
         public string cardHolderName { get; set; }

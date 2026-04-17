@@ -11,12 +11,16 @@ namespace Group10_Project.Models
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations;
+
     public partial class Permit
     {
         public string permitID { get; set; }
+        [Display(Name = "Date of Issue")]
         public Nullable<System.DateTime> dateOfIssue { get; set; }
+        [Display(Name = "Duration")]
         public string duration { get; set; }
+        [Display(Name = "Description")]
         public string description { get; set; }
         public string issuedBy { get; set; }
         public string issuedTo { get; set; }

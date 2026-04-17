@@ -26,7 +26,16 @@
         <div class="form-group">
             @Html.LabelFor(model => model.activityStartDate, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.activityStartDate, new { htmlAttributes = new { @class = "form-control", type = "date", required = "required" } })
+                @Html.EditorFor(model => model.activityStartDate, new
+           {
+               htmlAttributes = new
+               {
+                   @class = "form-control",
+                   type = "date",
+                   required = "required",
+                   min = DateTime.Now.ToString("yyyy-MM-dd")
+               }
+           })
                 @Html.ValidationMessageFor(model => model.activityStartDate, "", new { @class = "text-danger" })
             </div>
         </div>
@@ -34,7 +43,16 @@
         <div class="form-group">
             @Html.LabelFor(model => model.activityDuration, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.activityDuration, new { htmlAttributes = new { @class = "form-control", type = "date", required = "required" } })
+                @Html.EditorFor(model => model.activityDuration, new
+           {
+               htmlAttributes = new
+               {
+                   @class = "form-control",
+                   type = "date",
+                   required = "required",
+                   min = DateTime.Now.ToString("yyyy-MM-dd")
+               }
+           })
                 @Html.ValidationMessageFor(model => model.activityDuration, "", new { @class = "text-danger" })
             </div>
         </div>
@@ -46,6 +64,10 @@
                 @Html.ValidationMessageFor(model => model.permitTypeID, "", new { @class = "text-danger" })
             </div>
         </div>
+
+        <p>
+
+        </p>
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
