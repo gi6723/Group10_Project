@@ -314,7 +314,7 @@ namespace Group10_Project.Controllers
         public ActionResult PasswordChangeView(string currentPassword, string newPassword, string confirmPassword)
         {
             if (Session["UserId"] == null)
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "Account");    //no user
 
             // Check confirm password
             if (newPassword != confirmPassword)
