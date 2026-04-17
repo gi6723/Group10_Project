@@ -51,6 +51,14 @@
         </dd>
 
         <dt>
+            Site Address
+        </dt>
+
+        <dd>
+            @(Model.RE != null && Model.RE.RESite != null ? Model.RE.RESite.siteAddress : "")
+        </dd>
+
+        <dt>
             @Html.DisplayNameFor(model => model.PermitRequest.activityDescription)
         </dt>
 
@@ -60,3 +68,7 @@
 
     </dl>
 </div>
+
+<p>
+    @Html.ActionLink("Back", "Dashboard", "EO", null, new { @class = "btn btn-default" })
+</p>

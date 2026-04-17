@@ -187,6 +187,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\eo_password.txt" />
     <Content Include="App_Data\Group10_iPERMITDB.mdf" />
     <Content Include="App_Data\Group10_iPERMITDB_log.ldf">
       <DependentUpon>Group10_iPERMITDB.mdf</DependentUpon>
@@ -317,6 +318,9 @@
     <Content Include="Views\REs\Dashboard.cshtml" />
     <Content Include="Views\EO\Login.cshtml" />
     <Content Include="Views\EO\Dashboard.cshtml" />
+    <Content Include="Views\Permit\Issue.cshtml" />
+    <Content Include="Views\REs\PasswordChangeView.cshtml" />
+    <Content Include="Views\EO\ChangePassword.cshtml" />
 <Content Include="Views\Permit\Issue.cshtml" />
     <Content Include="Views\REs\PasswordChangeView.cshtml" />
   </ItemGroup>

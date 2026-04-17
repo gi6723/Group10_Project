@@ -24,35 +24,46 @@
             @Html.DisplayNameFor(model => model.RE.contactPersonName)
         </th>
         <th>
+            Site Address
+        </th>
+        <th>
             @Html.DisplayNameFor(model => model.PermitRequest.activityDescription)
         </th>
         <th></th>
     </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.dateOfIssue)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.duration)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.description)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.EO.Name)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.RE.contactPersonName)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.PermitRequest.activityDescription)
-        </td>
-        <td>
-            @Html.ActionLink("Details", "Details", new { id=item.permitID })
-        </td>
-    </tr>
-}
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.dateOfIssue)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.duration)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EO.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RE.contactPersonName)
+            </td>
+            <td>
+                @(item.RE != null && item.RE.RESite != null ? item.RE.RESite.siteAddress : "")
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PermitRequest.activityDescription)
+            </td>
+            <td>
+                @Html.ActionLink("Details", "Details", new { id = item.permitID })
+            </td>
+        </tr>
+    }
 
 </table>
+
+<p>
+    @Html.ActionLink("Back", "Dashboard", "EO", null, new { @class = "btn btn-default" })
+</p>
