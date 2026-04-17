@@ -260,7 +260,7 @@ ALTER TABLE [dbo].[RESite] CHECK CONSTRAINT [fk_RE]
 GO
 
 INSERT INTO EO 
-VALUES ('1234','John Smith');
+VALUES ('eo001','John Smith');
 
 INSERT INTO OPS_CPP
 VALUES ('1','Payment Controller');
