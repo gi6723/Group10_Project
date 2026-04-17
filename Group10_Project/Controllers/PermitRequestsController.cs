@@ -64,6 +64,11 @@ namespace Group10_Project.Controllers
 
             string currentUserId = Session["UserID"].ToString();
 
+            if (permitRequest.activityDuration < permitRequest.activityStartDate)
+            {
+                ModelState.AddModelError("activityDuration", "Activity duration date cannot be earlier than the activity start date.");
+            }
+
             if (ModelState.IsValid)
             {
                 // Auto-generate request number

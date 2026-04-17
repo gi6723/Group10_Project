@@ -16,71 +16,87 @@
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
         <div class="form-group">
-            @Html.LabelFor(model => model.activityDescription, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.activityDescription, new { htmlAttributes = new { @class = "form-control", required = "required" } })
+            @Html.LabelFor(model => model.activityDescription, "Activity Description", htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @Html.EditorFor(model => model.activityDescription, new
+                {
+                    htmlAttributes = new { @class = "form-control", required = "required" }
+                })
                 @Html.ValidationMessageFor(model => model.activityDescription, "", new { @class = "text-danger" })
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.activityStartDate, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.activityStartDate, new
-           {
-               htmlAttributes = new
-               {
-                   @class = "form-control",
-                   type = "date",
-                   required = "required",
-                   min = DateTime.Now.ToString("yyyy-MM-dd")
-               }
-           })
+            @Html.LabelFor(model => model.activityStartDate, "Activity Start Date", htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @Html.TextBoxFor(model => model.activityStartDate, "{0:yyyy-MM-dd}", new
+                {
+                    @class = "form-control",
+                    type = "date",
+                    required = "required",
+                    min = DateTime.Now.ToString("yyyy-MM-dd"),
+                    id = "activityStartDate"
+                })
                 @Html.ValidationMessageFor(model => model.activityStartDate, "", new { @class = "text-danger" })
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.activityDuration, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.activityDuration, new
-           {
-               htmlAttributes = new
-               {
-                   @class = "form-control",
-                   type = "date",
-                   required = "required",
-                   min = DateTime.Now.ToString("yyyy-MM-dd")
-               }
-           })
+            @Html.LabelFor(model => model.activityDuration, "Activity Duration", htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
+                @Html.TextBoxFor(model => model.activityDuration, "{0:yyyy-MM-dd}", new
+                {
+                    @class = "form-control",
+                    type = "date",
+                    required = "required",
+                    min = DateTime.Now.ToString("yyyy-MM-dd"),
+                    id = "activityDuration"
+                })
                 @Html.ValidationMessageFor(model => model.activityDuration, "", new { @class = "text-danger" })
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.permitTypeID, "Permit Type", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
+            @Html.LabelFor(model => model.permitTypeID, "Permit Type", htmlAttributes: new { @class = "control-label col-md-3" })
+            <div class="col-md-9">
                 @Html.DropDownList("permitTypeID", null, "-- Select Permit Type --", new { @class = "form-control", required = "required" })
                 @Html.ValidationMessageFor(model => model.permitTypeID, "", new { @class = "text-danger" })
             </div>
         </div>
 
-        <p>
-
-        </p>
-
         <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
+            <div class="col-md-offset-3 col-md-9">
                 <input type="submit" value="Submit Permit Request" class="btn btn-primary" />
+                @Html.Raw(" ")
+                @Html.ActionLink("Back", "Dashboard", "REs", null, new { @class = "btn btn-default" })
             </div>
         </div>
     </div>
 }
 
-<div>
-    @Html.ActionLink("Back to Dashboard", "Dashboard", "REs")
-</div>
-
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+
+    <script>(function () {
+            var startInput = document.getElementById("activityStartDate");
+            var durationInput = document.getElementById("activityDuration");
+
+            function updateDurationMin() {
+                if (!startInput || !durationInput) return;
+
+                var startValue = startInput.value;
+                if (startValue) {
+                    durationInput.min = startValue;
+
+                    if (durationInput.value && durationInput.value < startValue) {
+                        durationInput.value = startValue;
+                    }
+                }
+            }
+
+            if (startInput) {
+                startInput.addEventListener("change", updateDurationMin);
+                updateDurationMin();
+            }
+        })();</script>
 }
