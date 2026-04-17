@@ -1,4 +1,14 @@
-﻿USE [Group10_DB]
+﻿IF DB_ID('Group10_iPERMITDB') IS NOT NULL
+BEGIN
+    ALTER DATABASE [Group10_iPERMITDB] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE [Group10_iPERMITDB];
+END
+GO
+
+CREATE DATABASE [Group10_iPERMITDB];
+GO
+
+USE [Group10_iPERMITDB];
 GO
 /****** Object:  Table [dbo].[Decision]    Script Date: 4/8/2026 1:11:19 AM ******/
 SET ANSI_NULLS ON
@@ -250,7 +260,7 @@ ALTER TABLE [dbo].[RESite] CHECK CONSTRAINT [fk_RE]
 GO
 
 INSERT INTO EO 
-VALUES ('1234','John Smith');
+VALUES ('eo001','John Smith');
 
 INSERT INTO OPS_CPP
 VALUES ('1','Payment Controller');
