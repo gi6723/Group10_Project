@@ -21,6 +21,7 @@ namespace Group10_Project.Controllers
             var permits = db.Permits
                 .Include(p => p.EO)
                 .Include(p => p.RE)
+                .Include(p => p.RE.RESite)
                 .Include(p => p.PermitRequest);
 
             // 2. Check if an EO is logged in
@@ -42,7 +43,7 @@ namespace Group10_Project.Controllers
             }
 
             // 4. If all else fails return to dashboard
-            return View(permits);
+            return View(permits.ToList());
         }
 
         // GET: Permit/Details/5
@@ -53,7 +54,13 @@ namespace Group10_Project.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
-            Permit permit = db.Permits.Find(id);
+            Permit permit = db.Permits
+                .Include(p => p.EO)
+                .Include(p => p.RE)
+                .Include(p => p.RE.RESite)
+                .Include(p => p.PermitRequest)
+                .FirstOrDefault(p => p.permitID == id);
+
             if (permit == null)
             {
                 return HttpNotFound();
@@ -69,12 +76,15 @@ namespace Group10_Project.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
-            // Search by the Foreign Key 'relatedTo' instead of the Primary Key
-            var permit = db.Permits.FirstOrDefault(p => p.relatedTo == id);
+            var permit = db.Permits
+                .Include(p => p.EO)
+                .Include(p => p.RE)
+                .Include(p => p.RE.RESite)
+                .Include(p => p.PermitRequest)
+                .FirstOrDefault(p => p.relatedTo == id);
 
             if (permit == null)
             {
-                // This handles cases where a permit hasn't been issued yet
                 return HttpNotFound("No permit record found for this request.");
             }
 
