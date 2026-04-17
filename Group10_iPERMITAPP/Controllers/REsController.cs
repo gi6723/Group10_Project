@@ -114,14 +114,25 @@ namespace Group10_Project.Controllers
             return View(rE);
         }
 
-        // POST: REs/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "ID,contactPersonName,password,createdDate,email,organizationName,organizationAddress")] RE rE)
+        public ActionResult Edit([Bind(Include = "ID,contactPersonName,createdDate,email,organizationName,organizationAddress")] RE rE)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(rE).State = EntityState.Modified;
+                var existingRE = db.REs.FirstOrDefault(x => x.ID == rE.ID);
+
+                if (existingRE == null)
+                {
+                    return HttpNotFound();
+                }
+
+                existingRE.contactPersonName = rE.contactPersonName;
+                existingRE.createdDate = rE.createdDate;
+                existingRE.email = rE.email;
+                existingRE.organizationName = rE.organizationName;
+                existingRE.organizationAddress = rE.organizationAddress;
+
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
