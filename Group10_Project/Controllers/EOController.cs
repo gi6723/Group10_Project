@@ -14,6 +14,30 @@ namespace Group10_Project.Controllers
     {
         private Group10_DBEntities db = new Group10_DBEntities();
 
+        // Helper methods for EO password management
+        private string GetEOPasswordFilePath()
+        {
+            return Server.MapPath("~/App_Data/eo_password.txt");
+        }
+
+        private string GetCurrentEOPassword()
+        {
+            string path = GetEOPasswordFilePath();
+
+            if (!System.IO.File.Exists(path))
+            {
+                System.IO.File.WriteAllText(path, "password");
+            }
+
+            return System.IO.File.ReadAllText(path).Trim();
+        }
+
+        private void SaveCurrentEOPassword(string newPassword)
+        {
+            string path = GetEOPasswordFilePath();
+            System.IO.File.WriteAllText(path, newPassword.Trim());
+        }
+
         // GET: EO
         public ActionResult Index()
         {
@@ -129,7 +153,7 @@ namespace Group10_Project.Controllers
         {
             var eoUser = db.EOs.FirstOrDefault(e => e.ID == id);
 
-            if (eoUser != null && password == "password")
+            if (eoUser != null && password == GetCurrentEOPassword())
             {
                 Session["EOUserID"] = eoUser.ID;
                 Session["EOUserName"] = eoUser.Name;
@@ -195,6 +219,37 @@ namespace Group10_Project.Controllers
             ViewBag.AcceptedQueue = acceptedQueue;
 
             return View(reviewQueue);
+        }
+
+        // GET: EO/ChangePassword
+        public ActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        // POST: EO/ChangePassword
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ChangePassword(string id, string newPassword)
+        {
+            if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(newPassword))
+            {
+                ViewBag.Error = "EO ID and new password are required.";
+                return View();
+            }
+
+            var eoUser = db.EOs.FirstOrDefault(e => e.ID == id);
+
+            if (eoUser == null)
+            {
+                ViewBag.Error = "EO ID not found.";
+                return View();
+            }
+
+            SaveCurrentEOPassword(newPassword);
+            ViewBag.Success = "Password updated successfully.";
+
+            return View();
         }
 
         public ActionResult Logout()
