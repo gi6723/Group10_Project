@@ -123,7 +123,7 @@ namespace Group10_Project.Controllers
             {
                 db.Entry(rE).State = EntityState.Modified;
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Dashboard");
             }
 
             ViewBag.ID = new SelectList(db.RESites, "ID", "siteAddress", rE.ID);
